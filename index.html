@@ -2,92 +2,112 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>บันทึกรายรับ-รายจ่าย</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บันทึกรายรับรายจ่าย</title>
     <style>
-        :root { --blue: #1a3c6d; --light-blue: #e8eff7; --green: #d4edda; --grey: #f8f9fa; }
-        body { font-family: 'Tahoma', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
-        .header { text-align: center; color: var(--blue); margin-bottom: 20px; border-bottom: 2px solid var(--blue); padding-bottom: 10px; }
-        
-        /* Layout แบ่ง 2 ฝั่ง */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
-
-        .section-title { background: var(--blue); color: white; padding: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; }
-        .section-title span { background: white; color: var(--blue); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
-
-        /* ฟอร์มกรอก */
-        .input-box { background: var(--grey); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; }
-        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-add { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; color: white; border-radius: 4px; }
-        .btn-income { background: #2c7be5; }
-        .btn-expense { background: #e63757; }
-
-        /* ตาราง */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-        th { background: var(--light-blue); border: 1px solid #ccc; padding: 5px; }
-        td { border: 1px solid #ccc; padding: 5px; text-align: center; }
-        .total-row { background: #eee; font-weight: bold; }
-
-        /* ส่วนเปรียบเทียบด้านล่าง */
-        .summary-section { margin-top: 30px; border: 2px solid #ddd; padding: 15px; border-radius: 8px; }
-        .summary-grid { display: flex; justify-content: space-around; align-items: center; text-align: center; }
-        .sum-box { flex: 1; }
-        .compare-sign { font-size: 24px; font-weight: bold; color: var(--blue); }
-        .result-box { margin-top: 15px; padding: 10px; text-align: center; border-radius: 5px; font-weight: bold; }
+        body { font-family: sans-serif; padding: 15px; background: #f4f4f4; }
+        .box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-top: 5px solid #1a3c6d; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-inc { background: #28a745; }
+        .btn-exp { background: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .total-bar { background: #1a3c6d; color: white; padding: 10px; border-radius: 5px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h3 style="margin:0;">แผนการใช้เงินรายเดือน</h3>
+    <h3>💰 รายรับ-รายจ่าย</h3>
+
+    <div class="box">
+        <strong>1. รายรับ</strong>
+        <input type="text" id="incName" placeholder="ชื่อรายการ">
+        <input type="number" id="incAmt" placeholder="จำนวนเงิน">
+        <button class="btn-inc" onclick="addData('inc')">เพิ่มรายรับ</button>
+        <table id="incTable">
+            <thead><tr><th>รายการ</th><th>เงิน</th></tr></thead>
+            <tbody id="incBody"></tbody>
+        </table>
     </div>
 
-    <div class="main-grid">
-        <div>
-            <div class="section-title"><span>1</span> รายการรายรับ</div>
-            <div class="input-box">
-                <input type="text" id="inc-name" placeholder="ชื่อรายการ (เช่น เงินเดือน)">
-                <input type="number" id="inc-amt" placeholder="จำนวนเงิน (บาท)">
-                <button class="btn-add btn-income" onclick="addItem('income')">+ เพิ่มรายรับ</button>
-            </div>
-            <table>
-                <thead>
-                    <tr><th>รายการรายรับ</th><th>จำนวนเงิน</th><th>ลบ</th></tr>
-                </thead>
-                <tbody id="income-list"></tbody>
-                <tr class="total-row"><td>รวมรายรับทั้งหมด</td><td id="total-inc">0</td><td>-</td></tr>
-            </table>
-        </div>
-
-        <div>
-            <div class="section-title" style="background:#555;"><span>2</span> รายการรายจ่าย</div>
-            <div class="input-box">
-                <input type="text" id="exp-name" placeholder="ชื่อรายการ (เช่น ค่าเช่าบ้าน)">
-                <input type="number" id="exp-amt" placeholder="จำนวนเงิน (บาท)">
-                <button class="btn-add btn-expense" onclick="addItem('expense')">+ เพิ่มรายจ่าย</button>
-            </div>
-            <table>
-                <thead>
-                    <tr><th>รายการรายจ่าย</th><th>จำนวนเงิน</th><th>ลบ</th></tr>
-                </thead>
-                <tbody id="expense-list"></tbody>
-                <tr class="total-row"><td>รวมรายจ่ายทั้งหมด</td><td id="total-exp">0</td><td>-</td></tr>
-            </table>
-        </div>
+    <div class="box">
+        <strong>2. รายจ่าย</strong>
+        <input type="text" id="expName" placeholder="ชื่อรายการ">
+        <input type="number" id="expAmt" placeholder="จำนวนเงิน">
+        <button class="btn-exp" onclick="addData('exp')">เพิ่มรายจ่าย</button>
+        <table id="expTable">
+            <thead><tr><th>รายการ</th><th>เงิน</th></tr></thead>
+            <tbody id="expBody"></tbody>
+        </table>
     </div>
 
-    <div class="summary-section">
-        <div class="section-title" style="background:#888; margin-bottom:15px;"><span>3</span> เปรียบเทียบรายรับ - รายจ่าย</div>
-        <div class="summary-grid">
-            <div class="sum-box">รวมรายรับ<br><span id="sum-inc" style="font-size:20px;">0</span></div>
-            <div class="compare-sign" id="compare-icon">?</div>
-            <div class="sum-box">รวมรายจ่าย<br><span id="sum-exp" style="font-size:20px;">0</span></div>
-        </div>
-        <div id="final-msg" class="result-box" style="background:var(--grey);">กรุณาเพิ่มข้อมูล</div>
+    <div class="total-bar" id="summary">
+        รอรับข้อมูล...
     </div>
-    
-    <button onclick="clearAll()" style="margin-top:20px; width:100%; padding:10px; background
+
+    <button onclick="localStorage.clear(); location.reload();" style="background:#666; margin-top:20px;">ล้างข้อมูลทั้งหมด</button>
+
+<script>
+    // ดึงข้อมูล
+    let data = JSON.parse(localStorage.getItem('money_v2')) || { inc: [], exp: [] };
+
+    // แสดงผลทันทีที่เปิดหน้า
+    render();
+
+    function addData(type) {
+        const nameInput = document.getElementById(type + 'Name');
+        const amtInput = document.getElementById(type + 'Amt');
+        
+        const name = nameInput.value;
+        const amt = parseFloat(amtInput.value);
+
+        if (!name || isNaN(amt)) {
+            alert("กรุณากรอกชื่อและตัวเลขจำนวนเงินให้ถูกต้องครับ");
+            return;
+        }
+
+        // เพิ่มข้อมูลลงตัวแปร
+        data[type].push({ n: name, a: amt });
+
+        // บันทึกลงเครื่อง
+        localStorage.setItem('money_v2', JSON.stringify(data));
+
+        // ล้างช่องพิมพ์
+        nameInput.value = '';
+        amtInput.value = '';
+
+        // อัปเดตหน้าจอ
+        render();
+    }
+
+    function render() {
+        const incBody = document.getElementById('incBody');
+        const expBody = document.getElementById('expBody');
+        
+        incBody.innerHTML = '';
+        expBody.innerHTML = '';
+
+        let tInc = 0;
+        let tExp = 0;
+
+        data.inc.forEach(item => {
+            tInc += item.a;
+            incBody.innerHTML += `<tr><td>${item.n}</td><td>${item.a}</td></tr>`;
+        });
+
+        data.exp.forEach(item => {
+            tExp += item.a;
+            expBody.innerHTML += `<tr><td>${item.n}</td><td>${item.a}</td></tr>`;
+        });
+
+        const diff = tInc - tExp;
+        document.getElementById('summary').innerHTML = `
+            รายรับ: ${tInc} | รายจ่าย: ${tExp} <br>
+            <b>คงเหลือ: ${diff} บาท</b>
+        `;
+    }
+</script>
+
+</body>
+</html>
