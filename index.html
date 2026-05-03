@@ -2,202 +2,187 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกแผนการเงินรายเดือน</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>บัญชีรายรับ-รายจ่าย</title>
     <style>
-        :root { --bot-blue: #1a3c6d; --bot-light: #e8eff7; --bot-grey: #f4f4f4; }
-        body { font-family: 'Tahoma', sans-serif; background-color: #fcfcfc; margin: 0; padding: 10px; }
-        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .header-title { color: var(--bot-blue); border-bottom: 3px solid var(--bot-blue); padding-bottom: 10px; margin-bottom: 20px; font-weight: bold; font-size: 1.3rem; }
+        :root { --blue: #1a3c6d; --green: #28a745; --red: #dc3545; --grey: #6c757d; }
+        body { font-family: 'Tahoma', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 900px) { .grid-container { grid-template-columns: 1fr; } }
+        /* สรุปด้านบน */
+        .summary-dashboard { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; border-radius: 8px; text-align: center; color: white; }
+        .bg-green { background: var(--green); }
+        .bg-red { background: var(--red); }
+        .bg-blue { background: var(--blue); }
+        .stat-label { font-size: 12px; opacity: 0.9; }
+        .stat-value { font-size: 18px; font-weight: bold; }
 
-        .table-section { border: 1px solid #ccc; margin-bottom: 20px; }
-        .table-header { background: var(--bot-blue); color: white; padding: 10px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-        .circle { background: white; color: var(--bot-blue); border-radius: 50%; width: 20px; height: 20px; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+        /* แถบเปรียบเทียบ */
+        .progress-container { background: #eee; height: 12px; border-radius: 6px; margin: 15px 0; overflow: hidden; display: flex; }
+        #prog-inc { background: var(--green); height: 100%; transition: 0.5s; }
+        #prog-exp { background: var(--red); height: 100%; transition: 0.5s; }
 
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { background: var(--bot-light); border: 1px solid #ccc; padding: 8px; font-size: 12px; }
-        td { border: 1px solid #ccc; padding: 5px; text-align: center; font-size: 13px; }
-        
-        input { width: 100%; border: 1px solid #eee; padding: 8px; box-sizing: border-box; outline: none; font-size: 13px; }
-        input:focus { background: #fffde7; }
-        
-        .btn-add { background: var(--bot-blue); color: white; border: none; width: 100%; padding: 10px; cursor: pointer; font-weight: bold; }
-        .btn-add:hover { opacity: 0.9; }
+        /* ฟอร์มกรอก */
+        .input-group { background: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        input { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; font-size: 14px; }
 
-        .total-row { background: #eee; font-weight: bold; }
-        .sum-footer { background: #333; color: white; padding: 8px; text-align: center; font-size: 14px; }
-        .del-btn { color: red; cursor: pointer; font-weight: bold; }
-
-        /* ส่วนเปรียบเทียบ */
-        .summary-box { margin-top: 20px; border: 2px solid #ddd; padding: 15px; }
-        .summary-title { background: #666; color: white; padding: 8px; margin-bottom: 15px; }
-        .summary-flex { display: flex; justify-content: space-around; align-items: center; text-align: center; }
-        .box-val { font-size: 22px; font-weight: bold; border: 1px solid #ccc; padding: 10px; min-width: 130px; margin-top: 5px; display: block; }
-        .status-bar { margin-top: 15px; padding: 12px; text-align: center; font-weight: bold; border-radius: 4px; }
+        /* รายการ */
+        .list-section { margin-top: 20px; }
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; background: #fff; }
+        .item-date { font-size: 11px; color: #888; }
+        .item-name { font-weight: bold; }
+        .txt-green { color: var(--green); }
+        .txt-red { color: var(--red); }
+        .del-btn { color: #ccc; cursor: pointer; padding: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-title">แผนการใช้เงินรายเดือน</div>
+    <h3 style="text-align:center; color:var(--blue);">📊 สรุปแผนการเงิน</h3>
 
-    <div class="grid-container">
-        <div class="table-section">
-            <div class="table-header"><div class="circle">1</div> รายการรายรับ</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:25%">วัน/เดือน/ปี</th>
-                        <th style="width:35%">รายการ</th>
-                        <th>จำนวนเงิน (บาท)</th>
-                        <th>ลบ</th>
-                    </tr>
-                </thead>
-                <tbody id="inc-list"></tbody>
-                <tr style="background:#f9f9f9">
-                    <td><input type="date" id="in-date"></td>
-                    <td><input type="text" id="in-name" placeholder="เงินเดือน, โอที..."></td>
-                    <td><input type="number" id="in-amt" placeholder="0"></td>
-                    <td><button class="btn-add" onclick="add('inc')">+</button></td>
-                </tr>
-                <tr class="total-row">
-                    <td colspan="2">รวมรายรับทั้งหมด</td>
-                    <td id="total-inc-val">0</td>
-                    <td>-</td>
-                </tr>
-            </table>
-            <div class="sum-footer">รวมรายรับทั้งหมด: <span id="total-inc-txt">0</span> บาท</div>
+    <div class="summary-dashboard">
+        <div class="stat-box bg-green">
+            <div class="stat-label">รายรับ</div>
+            <div id="top-inc" class="stat-value">0</div>
         </div>
-
-        <div class="table-section">
-            <div class="table-header" style="background:#444;"><div class="circle">2</div> รายการรายจ่าย</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:25%">วัน/เดือน/ปี</th>
-                        <th style="width:35%">รายการ</th>
-                        <th>จำนวนเงิน (บาท)</th>
-                        <th>ลบ</th>
-                    </tr>
-                </thead>
-                <tbody id="exp-list"></tbody>
-                <tr style="background:#f9f9f9">
-                    <td><input type="date" id="ex-date"></td>
-                    <td><input type="text" id="ex-name" placeholder="ค่าข้าว, ค่าไฟ..."></td>
-                    <td><input type="number" id="ex-amt" placeholder="0"></td>
-                    <td><button class="btn-add" style="background:#444;" onclick="add('exp')">+</button></td>
-                </tr>
-                <tr class="total-row">
-                    <td colspan="2">รวมรายจ่ายทั้งหมด</td>
-                    <td id="total-exp-val">0</td>
-                    <td>-</td>
-                </tr>
-            </table>
-            <div class="sum-footer" style="background:#555;">รวมรายจ่ายทั้งหมด: <span id="total-exp-txt">0</span> บาท</div>
+        <div class="stat-box bg-red">
+            <div class="stat-label">รายจ่าย</div>
+            <div id="top-exp" class="stat-value">0</div>
+        </div>
+        <div class="stat-box bg-blue">
+            <div class="stat-label">คงเหลือ</div>
+            <div id="top-bal" class="stat-value">0</div>
         </div>
     </div>
 
-    <div class="summary-box">
-        <div class="summary-title"><span>3</span> เปรียบเทียบรายรับ - รายจ่าย</div>
-        <div class="summary-flex">
-            <div>รายรับทั้งหมด<br><span class="box-val" id="res-inc">0</span></div>
-            <div style="font-size:30px;" id="res-sign">?</div>
-            <div>รายจ่ายทั้งหมด<br><span class="box-val" id="res-exp">0</span></div>
-        </div>
-        <div id="status-msg" class="status-bar" style="background:#eee;">กรุณากรอกข้อมูล</div>
+    <div style="font-size:12px; text-align:center; color:#555;">สัดส่วน รายรับ (เขียว) : รายจ่าย (แดง)</div>
+    <div class="progress-container">
+        <div id="prog-inc" style="width: 50%;"></div>
+        <div id="prog-exp" style="width: 50%;"></div>
     </div>
 
-    <button onclick="clearAll()" style="width:100%; margin-top:20px; background:none; border:none; color:grey; cursor:pointer; text-decoration:underline;">ล้างข้อมูลทั้งหมด</button>
+    <div class="input-group">
+        <input type="date" id="ipt-date">
+        <input type="text" id="ipt-name" placeholder="ชื่อรายการ (เช่น ขายของ, ค่าข้าว)">
+        <input type="number" id="ipt-amt" placeholder="จำนวนเงิน (บาท)">
+        <div class="btn-row">
+            <button class="btn bg-green" onclick="saveData('IN')">+ รายรับ</button>
+            <button class="btn bg-red" onclick="saveData('OUT')">- รายจ่าย</button>
+        </div>
+    </div>
+
+    <div class="list-section">
+        <div style="font-weight:bold; border-bottom: 2px solid var(--blue); padding-bottom:5px;">ประวัติรายการ</div>
+        <div id="history-list"></div>
+    </div>
+
+    <button onclick="clearAll()" style="width:100%; margin-top:30px; background:none; border:none; color:var(--grey); cursor:pointer; text-decoration:underline; font-size:12px;">ล้างข้อมูลทั้งหมด</button>
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('my_finance_v3')) || { inc: [], exp: [] };
+    // ใช้ชื่อ Database ใหม่ป้องกันการชนกันของข้อมูลเดิม
+    const DB_NAME = 'FINANCE_APP_V5';
+    let records = JSON.parse(localStorage.getItem(DB_NAME)) || [];
 
-    window.onload = render;
+    // โหลดหน้าเว็บครั้งแรก
+    window.onload = function() {
+        // ตั้งค่าวันที่ปัจจุบันให้ช่อง Date
+        document.getElementById('ipt-date').valueAsDate = new Date();
+        refreshUI();
+    };
 
-    function add(type) {
-        const d = document.getElementById(type === 'inc' ? 'in-date' : 'ex-date').value;
-        const n = document.getElementById(type === 'inc' ? 'in-name' : 'ex-name').value;
-        const a = parseFloat(document.getElementById(type === 'inc' ? 'inc-amt' : 'ex-amt').value) || 0;
+    function saveData(type) {
+        const dateInput = document.getElementById('ipt-date').value;
+        const nameInput = document.getElementById('ipt-name').value;
+        const amtInput = document.getElementById('ipt-amt').value;
 
-        if (!d || !n || a <= 0) return alert("กรุณากรอกวันที่ ชื่อรายการ และจำนวนเงินให้ครบถ้วนครับ");
+        if (!dateInput || !nameInput || !amtInput || amtInput <= 0) {
+            alert("กรุณากรอกข้อมูลให้ครบและจำนวนเงินต้องมากกว่า 0 ครับ");
+            return;
+        }
 
-        // แปลงวันที่เป็นรูปแบบไทย
-        const dateObj = new Date(d);
-        const dateStr = dateObj.toLocaleDateString('th-TH');
+        const newRecord = {
+            id: Date.now(),
+            date: dateInput,
+            name: nameInput,
+            amt: parseFloat(amtInput),
+            type: type // 'IN' หรือ 'OUT'
+        };
 
-        db[type].push({ id: Date.now(), date: dateStr, rawDate: d, name: n, amt: a });
-        save();
+        records.push(newRecord);
+        localStorage.setItem(DB_NAME, JSON.stringify(records));
 
-        // ล้างช่องกรอก
-        document.getElementById(type === 'inc' ? 'in-name' : 'ex-name').value = '';
-        document.getElementById(type === 'inc' ? 'inc-amt' : 'ex-amt').value = '';
+        // ล้างช่องกรอก (ยกเว้นวันที่)
+        document.getElementById('ipt-name').value = '';
+        document.getElementById('ipt-amt').value = '';
+        
+        refreshUI();
     }
 
-    function render() {
-        const incBody = document.getElementById('inc-list');
-        const expBody = document.getElementById('exp-list');
-        incBody.innerHTML = ''; expBody.innerHTML = '';
+    function refreshUI() {
+        const listDiv = document.getElementById('history-list');
+        listDiv.innerHTML = '';
 
-        let tInc = 0, tExp = 0;
+        let totalIn = 0;
+        let totalOut = 0;
 
-        // รายรับ
-        db.inc.sort((a,b) => new Date(a.rawDate) - new Date(b.rawDate)).forEach(item => {
-            tInc += item.amt;
-            incBody.innerHTML += `<tr><td>${item.date}</td><td>${item.name}</td><td>${item.amt.toLocaleString()}</td><td class="del-btn" onclick="del('inc',${item.id})">✕</td></tr>`;
+        // เรียงวันที่ล่าสุดขึ้นก่อน
+        records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        records.forEach(item => {
+            if (item.type === 'IN') totalIn += item.amt;
+            else totalOut += item.amt;
+
+            const dateFmt = new Date(item.date).toLocaleDateString('th-TH');
+            listDiv.innerHTML += `
+                <div class="item">
+                    <div>
+                        <div class="item-date">${dateFmt}</div>
+                        <div class="item-name">${item.name}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="${item.type === 'IN' ? 'txt-green' : 'txt-red'}">
+                            ${item.type === 'IN' ? '+' : '-'}${item.amt.toLocaleString()}
+                        </span>
+                        <span class="del-btn" onclick="removeItem(${item.id})">✕</span>
+                    </div>
+                </div>
+            `;
         });
 
-        // รายจ่าย
-        db.exp.sort((a,b) => new Date(a.rawDate) - new Date(b.rawDate)).forEach(item => {
-            tExp += item.amt;
-            expBody.innerHTML += `<tr><td>${item.date}</td><td>${item.name}</td><td>${item.amt.toLocaleString()}</td><td class="del-btn" onclick="del('exp',${item.id})">✕</td></tr>`;
-        });
+        // อัปเดตตัวเลข Dashboard
+        document.getElementById('top-inc').innerText = totalIn.toLocaleString();
+        document.getElementById('top-exp').innerText = totalOut.toLocaleString();
+        document.getElementById('top-bal').innerText = (totalIn - totalOut).toLocaleString();
 
-        document.getElementById('total-inc-val').innerText = tInc.toLocaleString();
-        document.getElementById('total-inc-txt').innerText = tInc.toLocaleString();
-        document.getElementById('res-inc').innerText = tInc.toLocaleString();
-
-        document.getElementById('total-exp-val').innerText = tExp.toLocaleString();
-        document.getElementById('total-exp-txt').innerText = tExp.toLocaleString();
-        document.getElementById('res-exp').innerText = tExp.toLocaleString();
-
-        // คำนวณสรุป
-        const msg = document.getElementById('status-msg');
-        const sign = document.getElementById('res-sign');
-        const diff = tInc - tExp;
-
-        if (tInc > tExp) {
-            sign.innerText = ">";
-            msg.innerHTML = `ยินดีด้วย! คุณมีเงินคงเหลือออม <b>${diff.toLocaleString()}</b> บาท`;
-            msg.style.background = "#d4edda"; msg.style.color = "#155724";
-        } else if (tInc < tExp) {
-            sign.innerText = "<";
-            msg.innerHTML = `ระวัง! รายจ่ายมากกว่ารายรับ <b>${Math.abs(diff).toLocaleString()}</b> บาท`;
-            msg.style.background = "#f8d7da"; msg.style.color = "#721c24";
+        // อัปเดตกราฟสัดส่วน
+        const totalAll = totalIn + totalOut;
+        if (totalAll > 0) {
+            document.getElementById('prog-inc').style.width = (totalIn / totalAll * 100) + "%";
+            document.getElementById('prog-exp').style.width = (totalOut / totalAll * 100) + "%";
         } else {
-            sign.innerText = "=";
-            msg.innerText = "รายรับพอดีกับรายจ่าย (พอใช้แต่ไม่มีเหลือออม)";
-            msg.style.background = "#fff3cd"; msg.style.color = "#856404";
+            document.getElementById('prog-inc').style.width = "50%";
+            document.getElementById('prog-exp').style.width = "50%";
         }
     }
 
-    function del(type, id) {
-        db[type] = db[type].filter(i => i.id !== id);
-        save();
-    }
-
-    function save() {
-        localStorage.setItem('my_finance_v3', JSON.stringify(db));
-        render();
+    function removeItem(id) {
+        if(confirm("ลบรายการนี้ใช่ไหม?")) {
+            records = records.filter(r => r.id !== id);
+            localStorage.setItem(DB_NAME, JSON.stringify(records));
+            refreshUI();
+        }
     }
 
     function clearAll() {
-        if (confirm("ต้องการล้างข้อมูลทั้งหมดใช่ไหม?")) {
-            db = { inc: [], exp: [] };
-            save();
+        if(confirm("ต้องการล้างข้อมูลทั้งหมด?")) {
+            records = [];
+            localStorage.removeItem(DB_NAME);
+            refreshUI();
         }
     }
 </script>
