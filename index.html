@@ -3,115 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Schedule - Mobile</title>
+    <title>บันทึกรายรับ-รายจ่าย</title>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, sans-serif; background-color: #f5f5f7; margin: 0; padding: 15px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h2 { text-align: center; color: #1d1d1f; margin-top: 0; }
-
-        /* ส่วนกรอกข้อมูล */
-        .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 12px; }
-        input { width: 100%; padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 16px; outline: none; }
-        input:focus { border-color: #0071e3; }
-        .add-btn { background: #0071e3; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; }
-
-        /* รายการตาราง */
-        .item-card { background: white; border: 1px solid #e5e5e5; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-        .item-info { flex-grow: 1; }
-        .item-time { font-weight: bold; color: #0071e3; font-size: 14px; }
-        .item-note { font-size: 16px; color: #1d1d1f; display: block; margin-top: 2px; }
-        .item-date { font-size: 12px; color: #86868b; }
+        :root { --blue: #1a3c6d; --light-blue: #e8eff7; --green: #d4edda; --grey: #f8f9fa; }
+        body { font-family: 'Tahoma', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
-        /* สถานะเสร็จสิ้น */
-        .done .item-note { text-decoration: line-through; color: #86868b; }
-        .checkbox { width: 24px; height: 24px; cursor: pointer; border-radius: 50%; }
-        .del-btn { background: none; border: none; color: #ff3b30; font-size: 18px; padding: 5px; cursor: pointer; }
+        .header { text-align: center; color: var(--blue); margin-bottom: 20px; border-bottom: 2px solid var(--blue); padding-bottom: 10px; }
+        
+        /* Layout แบ่ง 2 ฝั่ง */
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .section-title { background: var(--blue); color: white; padding: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .section-title span { background: white; color: var(--blue); border-radius: 50%; width: 20px; height: 20px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; }
+
+        /* ฟอร์มกรอก */
+        .input-box { background: var(--grey); padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-add { width: 100%; padding: 10px; border: none; cursor: pointer; font-weight: bold; color: white; border-radius: 4px; }
+        .btn-income { background: #2c7be5; }
+        .btn-expense { background: #e63757; }
+
+        /* ตาราง */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th { background: var(--light-blue); border: 1px solid #ccc; padding: 5px; }
+        td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+        .total-row { background: #eee; font-weight: bold; }
+
+        /* ส่วนเปรียบเทียบด้านล่าง */
+        .summary-section { margin-top: 30px; border: 2px solid #ddd; padding: 15px; border-radius: 8px; }
+        .summary-grid { display: flex; justify-content: space-around; align-items: center; text-align: center; }
+        .sum-box { flex: 1; }
+        .compare-sign { font-size: 24px; font-weight: bold; color: var(--blue); }
+        .result-box { margin-top: 15px; padding: 10px; text-align: center; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📅 ตารางของฉัน</h2>
-    
-    <div class="form-group">
-        <input type="date" id="d">
-        <input type="time" id="t">
-        <input type="text" id="n" placeholder="จะทำอะไรดี..." autocomplete="off">
-        <button class="add-btn" onclick="add()">+ เพิ่มลงตาราง</button>
+    <div class="header">
+        <h3 style="margin:0;">แผนการใช้เงินรายเดือน</h3>
     </div>
 
-    <div id="list"></div>
-</div>
+    <div class="main-grid">
+        <div>
+            <div class="section-title"><span>1</span> รายการรายรับ</div>
+            <div class="input-box">
+                <input type="text" id="inc-name" placeholder="ชื่อรายการ (เช่น เงินเดือน)">
+                <input type="number" id="inc-amt" placeholder="จำนวนเงิน (บาท)">
+                <button class="btn-add btn-income" onclick="addItem('income')">+ เพิ่มรายรับ</button>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>รายการรายรับ</th><th>จำนวนเงิน</th><th>ลบ</th></tr>
+                </thead>
+                <tbody id="income-list"></tbody>
+                <tr class="total-row"><td>รวมรายรับทั้งหมด</td><td id="total-inc">0</td><td>-</td></tr>
+            </table>
+        </div>
 
-<script>
-    // โหลดข้อมูลทันทีที่เปิดเว็บ
-    window.onload = load;
+        <div>
+            <div class="section-title" style="background:#555;"><span>2</span> รายการรายจ่าย</div>
+            <div class="input-box">
+                <input type="text" id="exp-name" placeholder="ชื่อรายการ (เช่น ค่าเช่าบ้าน)">
+                <input type="number" id="exp-amt" placeholder="จำนวนเงิน (บาท)">
+                <button class="btn-add btn-expense" onclick="addItem('expense')">+ เพิ่มรายจ่าย</button>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>รายการรายจ่าย</th><th>จำนวนเงิน</th><th>ลบ</th></tr>
+                </thead>
+                <tbody id="expense-list"></tbody>
+                <tr class="total-row"><td>รวมรายจ่ายทั้งหมด</td><td id="total-exp">0</td><td>-</td></tr>
+            </table>
+        </div>
+    </div>
 
-    function add() {
-        const d = document.getElementById('d').value;
-        const t = document.getElementById('t').value;
-        const n = document.getElementById('n').value;
-
-        if (!d || !t || !n) {
-            alert("ใส่ข้อมูลให้ครบก่อนน้า");
-            return;
-        }
-
-        const obj = { id: Date.now(), d, t, n, ok: false };
-        
-        // เซฟลง LocalStorage
-        let data = JSON.parse(localStorage.getItem('my_list') || "[]");
-        data.push(obj);
-        localStorage.setItem('my_list', JSON.stringify(data));
-
-        // ล้างช่องกรอกและวาดใหม่
-        document.getElementById('n').value = '';
-        render();
-    }
-
-    function render() {
-        const data = JSON.parse(localStorage.getItem('my_list') || "[]");
-        const listDiv = document.getElementById('list');
-        listDiv.innerHTML = '';
-
-        // เรียงตามเวลา
-        data.sort((a, b) => (a.d + a.t).localeCompare(b.d + b.t));
-
-        data.forEach(item => {
-            const div = document.createElement('div');
-            div.className = `item-card ${item.ok ? 'done' : ''}`;
-            div.innerHTML = `
-                <input type="checkbox" class="checkbox" ${item.ok ? 'checked' : ''} onchange="toggle(${item.id})">
-                <div class="item-info">
-                    <span class="item-time">${item.t} น.</span>
-                    <span class="item-note">${item.n}</span>
-                    <span class="item-date">${item.d}</span>
-                </div>
-                <button class="del-btn" onclick="del(${item.id})">🗑️</button>
-            `;
-            listDiv.appendChild(div);
-        });
-    }
-
-    function toggle(id) {
-        let data = JSON.parse(localStorage.getItem('my_list'));
-        data = data.map(i => i.id === id ? {...i, ok: !i.ok} : i);
-        localStorage.setItem('my_list', JSON.stringify(data));
-        render();
-    }
-
-    function del(id) {
-        if (confirm("ลบรายการนี้ไหม?")) {
-            let data = JSON.parse(localStorage.getItem('my_list'));
-            data = data.filter(i => i.id !== id);
-            localStorage.setItem('my_list', JSON.stringify(data));
-            render();
-        }
-    }
-
-    function load() { render(); }
-</script>
-
-</body>
-</html>
+    <div class="summary-section">
+        <div class="section-title" style="background:#888; margin-bottom:15px;"><span>3</span> เปรียบเทียบรายรับ - รายจ่าย</div>
+        <div class="summary-grid">
+            <div class="sum-box">รวมรายรับ<br><span id="sum-inc" style="font-size:20px;">0</span></div>
+            <div class="compare-sign" id="compare-icon">?</div>
+            <div class="sum-box">รวมรายจ่าย<br><span id="sum-exp" style="font-size:20px;">0</span></div>
+        </div>
+        <div id="final-msg" class="result-box" style="background:var(--grey);">กรุณาเพิ่มข้อมูล</div>
+    </div>
+    
+    <button onclick="clearAll()" style="margin-top:20px; width:100%; padding:10px; background
