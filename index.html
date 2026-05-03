@@ -2,118 +2,116 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางเวลา (Mobile Friendly)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Schedule - Mobile</title>
     <style>
-        :root { --primary: #4a90e2; --success: #28a745; --danger: #dc3545; }
-        body { font-family: 'Tahoma', sans-serif; background-color: #f0f2f5; margin: 0; padding: 10px; display: flex; justify-content: center; }
-        .app-container { background: white; width: 100%; max-width: 850px; padding: 15px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; font-size: 1.5rem; }
-        
-        /* ส่วนกรอกข้อมูล ปรับให้ยืดหยุ่นตามหน้าจอ */
-        .input-section { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 10px; }
-        @media (min-width: 600px) {
-            .input-section { display: grid; grid-template-columns: 1fr 1fr 2fr 1fr; }
-        }
-        
-        input, button { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; /* 16px ช่วยไม่ให้ iPhone Zoom เวลาพิมพ์ */ }
-        .add-btn { background: var(--primary); color: white; border: none; cursor: pointer; font-weight: bold; }
-        
-        /* สไตล์ตารางหลัก */
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f4f4f4; }
-        
-        .done { text-decoration: line-through; color: #888; opacity: 0.6; }
-        .delete-btn { color: var(--danger); cursor: pointer; border: none; background: none; font-size: 20px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, sans-serif; background-color: #f5f5f7; margin: 0; padding: 15px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h2 { text-align: center; color: #1d1d1f; margin-top: 0; }
 
-        /* --- จุดสำคัญ: ปรับแต่งสำหรับมือถือ --- */
-        @media screen and (max-width: 600px) {
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; } /* ซ่อนหัวตาราง */
-            tr { border: 1px solid #ccc; margin-bottom: 10px; border-radius: 10px; padding: 10px; background: #fff; }
-            td { border: none; position: relative; padding-left: 50%; }
-            td:before { position: absolute; left: 10px; width: 45%; font-weight: bold; color: var(--primary); content: attr(data-label); }
-            .checkbox-cell { text-align: left; padding-left: 0; border-bottom: 1px solid #eee; margin-bottom: 5px; }
-            .checkbox-cell:before { content: "สถานะ: "; position: relative; left: 0; margin-right: 10px; }
-        }
+        /* ส่วนกรอกข้อมูล */
+        .form-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 12px; }
+        input { width: 100%; padding: 12px; border: 1px solid #d2d2d7; border-radius: 8px; font-size: 16px; outline: none; }
+        input:focus { border-color: #0071e3; }
+        .add-btn { background: #0071e3; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; }
+
+        /* รายการตาราง */
+        .item-card { background: white; border: 1px solid #e5e5e5; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+        .item-info { flex-grow: 1; }
+        .item-time { font-weight: bold; color: #0071e3; font-size: 14px; }
+        .item-note { font-size: 16px; color: #1d1d1f; display: block; margin-top: 2px; }
+        .item-date { font-size: 12px; color: #86868b; }
+        
+        /* สถานะเสร็จสิ้น */
+        .done .item-note { text-decoration: line-through; color: #86868b; }
+        .checkbox { width: 24px; height: 24px; cursor: pointer; border-radius: 50%; }
+        .del-btn { background: none; border: none; color: #ff3b30; font-size: 18px; padding: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <h2>📝 ตารางเวลาของฉัน</h2>
-
-    <div class="input-section">
-        <input type="date" id="dateInput">
-        <input type="time" id="timeInput">
-        <input type="text" id="noteInput" placeholder="ต้องทำอะไร...">
-        <button class="add-btn" onclick="addSchedule()">เพิ่ม</button>
+<div class="container">
+    <h2>📅 ตารางของฉัน</h2>
+    
+    <div class="form-group">
+        <input type="date" id="d">
+        <input type="time" id="t">
+        <input type="text" id="n" placeholder="จะทำอะไรดี..." autocomplete="off">
+        <button class="add-btn" onclick="add()">+ เพิ่มลงตาราง</button>
     </div>
 
-    <table id="scheduleTable">
-        <thead>
-            <tr>
-                <th>เสร็จ</th>
-                <th>วันที่</th>
-                <th>เวลา</th>
-                <th>หมายเหตุ</th>
-                <th>ลบ</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <div id="list"></div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', loadData);
+    // โหลดข้อมูลทันทีที่เปิดเว็บ
+    window.onload = load;
 
-    function addSchedule() {
-        const date = document.getElementById('dateInput').value;
-        const time = document.getElementById('timeInput').value;
-        const note = document.getElementById('noteInput').value;
+    function add() {
+        const d = document.getElementById('d').value;
+        const t = document.getElementById('t').value;
+        const n = document.getElementById('n').value;
 
-        if (!date || !time || !note) {
-            alert("กรอกข้อมูลให้ครบก่อนนะครับ");
+        if (!d || !t || !n) {
+            alert("ใส่ข้อมูลให้ครบก่อนน้า");
             return;
         }
 
-        const item = {
-            id: Date.now(),
-            date: new Date(date).toLocaleDateString('th-TH'),
-            time: time,
-            note: note,
-            completed: false
-        };
+        const obj = { id: Date.now(), d, t, n, ok: false };
+        
+        // เซฟลง LocalStorage
+        let data = JSON.parse(localStorage.getItem('my_list') || "[]");
+        data.push(obj);
+        localStorage.setItem('my_list', JSON.stringify(data));
 
-        saveToLocal(item);
-        renderRow(item);
-        document.getElementById('dateInput').value = '';
-        document.getElementById('timeInput').value = '';
-        document.getElementById('noteInput').value = '';
+        // ล้างช่องกรอกและวาดใหม่
+        document.getElementById('n').value = '';
+        render();
     }
 
-    function renderRow(item) {
-        const tbody = document.getElementById('tableBody');
-        const row = document.createElement('tr');
-        row.setAttribute('data-id', item.id);
-        if (item.completed) row.classList.add('done');
+    function render() {
+        const data = JSON.parse(localStorage.getItem('my_list') || "[]");
+        const listDiv = document.getElementById('list');
+        listDiv.innerHTML = '';
 
-        row.innerHTML = `
-            <td class="checkbox-cell"><input type="checkbox" ${item.completed ? 'checked' : ''} onclick="toggleStatus(${item.id})"></td>
-            <td data-label="วันที่">${item.date}</td>
-            <td data-label="เวลา">${item.time} น.</td>
-            <td data-label="หมายเหตุ">${item.note}</td>
-            <td data-label="ลบ"><button class="delete-btn" onclick="deleteItem(${item.id})">🗑️</button></td>
-        `;
-        tbody.appendChild(row);
+        // เรียงตามเวลา
+        data.sort((a, b) => (a.d + a.t).localeCompare(b.d + b.t));
+
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = `item-card ${item.ok ? 'done' : ''}`;
+            div.innerHTML = `
+                <input type="checkbox" class="checkbox" ${item.ok ? 'checked' : ''} onchange="toggle(${item.id})">
+                <div class="item-info">
+                    <span class="item-time">${item.t} น.</span>
+                    <span class="item-note">${item.n}</span>
+                    <span class="item-date">${item.d}</span>
+                </div>
+                <button class="del-btn" onclick="del(${item.id})">🗑️</button>
+            `;
+            listDiv.appendChild(div);
+        });
     }
 
-    function saveToLocal(item) {
-        let history = JSON.parse(localStorage.getItem('mySchedule')) || [];
-        history.push(item);
-        localStorage.setItem('mySchedule', JSON.stringify(history));
+    function toggle(id) {
+        let data = JSON.parse(localStorage.getItem('my_list'));
+        data = data.map(i => i.id === id ? {...i, ok: !i.ok} : i);
+        localStorage.setItem('my_list', JSON.stringify(data));
+        render();
     }
 
-    function loadData() {
-        let
+    function del(id) {
+        if (confirm("ลบรายการนี้ไหม?")) {
+            let data = JSON.parse(localStorage.getItem('my_list'));
+            data = data.filter(i => i.id !== id);
+            localStorage.setItem('my_list', JSON.stringify(data));
+            render();
+        }
+    }
+
+    function load() { render(); }
+</script>
+
+</body>
+</html>
