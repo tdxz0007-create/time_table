@@ -3,109 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกรายรับรายจ่าย</title>
+    <title>แผนใช้เงินรายเดือน</title>
     <style>
-        body { font-family: sans-serif; padding: 15px; background: #f4f4f4; }
-        .box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-top: 5px solid #1a3c6d; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .btn-inc { background: #28a745; }
-        .btn-exp { background: #dc3545; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .total-bar { background: #1a3c6d; color: white; padding: 10px; border-radius: 5px; text-align: center; margin-top: 20px; }
+        :root { --bot-blue: #1a3c6d; --bot-light: #e8eff7; --bot-green: #d4edda; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #fdfdfd; margin: 0; padding: 10px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 15px; }
+        
+        .header-title { color: var(--bot-blue); border-bottom: 2px solid var(--bot-blue); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; }
+        
+        /* Layout Grid */
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 800px) { .grid-container { grid-template-columns: 1fr; } }
+
+        /* ส่วนหัวของแต่ละตาราง */
+        .table-title { background: var(--bot-blue); color: white; padding: 10px; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .table-title span { background: white; color: var(--bot-blue); border-radius: 50%; width: 22px; height: 22px; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+
+        /* การตั้งค่าตาราง */
+        table { width: 100%; border-collapse: collapse; margin-top: 0; }
+        th { background: var(--bot-light); border: 1px solid #ccc; padding: 8px; font-size: 12px; font-weight: normal; }
+        td { border: 1px solid #ccc; padding: 8px; height: 35px; }
+        .input-row td { padding: 2px; }
+        input { width: 100%; border: none; padding: 8px; box-sizing: border-box; outline: none; font-size: 14px; }
+        .btn-add { background: var(--bot-blue); color: white; border: none; width: 100%; padding: 8px; cursor: pointer; }
+
+        /* ช่องพิเศษสีเทา (เหมือนต้นฉบับ) */
+        .gray-cell { background: #e0e0e0; width: 60px; }
+        .total-row { background: #f0f0f0; font-weight: bold; text-align: center; }
+        .sum-label { background: black; color: white; font-size: 12px; padding: 5px; text-align: center; }
+
+        /* ส่วนเปรียบเทียบด้านล่าง */
+        .compare-box { margin-top: 30px; border: 1px solid #ccc; padding: 15px; }
+        .compare-title { background: #888; color: white; padding: 8px; display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .compare-flex { display: flex; justify-content: space-around; align-items: center; text-align: center; }
+        .sum-val { font-size: 24px; border: 1px solid #ccc; padding: 10px; min-width: 120px; display: block; margin-top: 5px; }
+        
+        .result-text { margin-top: 20px; text-align: center; padding: 15px; background: var(--bot-light); border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h3>💰 รายรับ-รายจ่าย</h3>
+<div class="container">
+    <div class="header-title">แผนใช้เงินรายเดือน</div>
 
-    <div class="box">
-        <strong>1. รายรับ</strong>
-        <input type="text" id="incName" placeholder="ชื่อรายการ">
-        <input type="number" id="incAmt" placeholder="จำนวนเงิน">
-        <button class="btn-inc" onclick="addData('inc')">เพิ่มรายรับ</button>
-        <table id="incTable">
-            <thead><tr><th>รายการ</th><th>เงิน</th></tr></thead>
-            <tbody id="incBody"></tbody>
-        </table>
+    <div class="grid-container">
+        <div>
+            <div class="table-title"><span>1</span> รายการรายรับ</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">รายการรายรับ<br>(ที่มา)</th>
+                        <th>รายรับจากการทำงาน<br>จำนวนเงิน (บาท)</th>
+                        <th>รายรับจากออม/ลงทุน<br>จำนวนเงิน (บาท)</th>
+                    </tr>
+                </thead>
+                <tbody id="inc-body">
+                    <tr class="input-row">
+                        <td><input type="text" id="in-name" placeholder="ระบุ..."></td>
+                        <td><input type="number" id="in-work" placeholder="0"></td>
+                        <td><input type="number" id="in-save" placeholder="0"></td>
+                    </tr>
+                </tbody>
+                <tr>
+                    <td colspan="3"><button class="btn-add" onclick="addInc()">+ เพิ่มรายการรายรับ</button></td>
+                </tr>
+                <tr class="total-row">
+                    <td>รวมรายรับ</td>
+                    <td id="sum-in-work">0</td>
+                    <td id="sum-in-save">0</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="sum-label">รวมรายรับทั้งหมด: <span id="total-income">0</span> บาท</td>
+                </tr>
+            </table>
+        </div>
+
+        <div>
+            <div class="table-title" style="background:#444;"><span>2</span> รายการรายจ่าย</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">รายการรายจ่าย<br>(เงินออก)</th>
+                        <th>รายจ่ายจำเป็น<br>จำนวนเงิน (บาท)</th>
+                        <th class="gray-cell">รายจ่ายไม่จำเป็น<br>จำนวนเงิน (บาท)</th>
+                    </tr>
+                </thead>
+                <tbody id="exp-body">
+                    <tr class="input-row">
+                        <td><input type="text" id="ex-name" placeholder="ระบุ..."></td>
+                        <td><input type="number" id="ex-need" placeholder="0"></td>
+                        <td><input type="number" id="ex-need" placeholder="0"></td>
+                        <td class="gray-cell"><input type="number" id="ex-want" style="background:transparent" placeholder="0"></td>
+                    </tr>
+                </tbody>
+                <tr>
+                    <td colspan="3"><button class="btn-add" style="background:#444;" onclick="addExp()">+ เพิ่มรายการรายจ่าย</button></td>
+                </tr>
+                <tr class="total-row">
+                    <td>รวมรายจ่าย</td>
+                    <td id="sum-ex-need">0</td>
+                    <td id="sum-ex-want">0</td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="sum-label" style="background:#555;">รวมรายจ่ายทั้งหมด: <span id="total-expense">0</span> บาท</td>
+                </tr>
+            </table>
+        </div>
     </div>
 
-    <div class="box">
-        <strong>2. รายจ่าย</strong>
-        <input type="text" id="expName" placeholder="ชื่อรายการ">
-        <input type="number" id="expAmt" placeholder="จำนวนเงิน">
-        <button class="btn-exp" onclick="addData('exp')">เพิ่มรายจ่าย</button>
-        <table id="expTable">
-            <thead><tr><th>รายการ</th><th>เงิน</th></tr></thead>
-            <tbody id="expBody"></tbody>
-        </table>
+    <div class="compare-box">
+        <div class="compare-title"><span>3</span> เปรียบเทียบรายรับ - รายจ่าย</div>
+        <div class="compare-flex">
+            <div>รวมรายรับทั้งหมด<br><span class="sum-val" id="final-inc">0</span></div>
+            <div style="font-size: 30px; font-weight: bold;" id="sign">?</div>
+            <div>รวมรายจ่ายทั้งหมด<br><span class="sum-val" id="final-exp">0</span></div>
+        </div>
+        <div id="status-msg" class="result-text">กรุณากรอกข้อมูลเพื่อประเมินแผนการเงิน</div>
     </div>
 
-    <div class="total-bar" id="summary">
-        รอรับข้อมูล...
-    </div>
-
-    <button onclick="localStorage.clear(); location.reload();" style="background:#666; margin-top:20px;">ล้างข้อมูลทั้งหมด</button>
+    <button onclick="clearData()" style="margin-top:30px; background:none; border:none; color:red; cursor:pointer; width:100%; text-decoration:underline;">ล้างข้อมูลทั้งหมดและเริ่มใหม่</button>
+</div>
 
 <script>
-    // ดึงข้อมูล
-    let data = JSON.parse(localStorage.getItem('money_v2')) || { inc: [], exp: [] };
+    let db = JSON.parse(localStorage.getItem('bot_plan_db')) || { inc: [], exp: [] };
 
-    // แสดงผลทันทีที่เปิดหน้า
-    render();
+    window.onload = render;
 
-    function addData(type) {
-        const nameInput = document.getElementById(type + 'Name');
-        const amtInput = document.getElementById(type + 'Amt');
-        
-        const name = nameInput.value;
-        const amt = parseFloat(amtInput.value);
+    function addInc() {
+        const name = document.getElementById('in-name').value;
+        const work = parseFloat(document.getElementById('in-work').value) || 0;
+        const save = parseFloat(document.getElementById('in-save').value) || 0;
+        if(!name && work === 0 && save === 0) return;
+        db.inc.push({ name, work, save });
+        update();
+    }
 
-        if (!name || isNaN(amt)) {
-            alert("กรุณากรอกชื่อและตัวเลขจำนวนเงินให้ถูกต้องครับ");
-            return;
-        }
+    function addExp() {
+        const name = document.getElementById('ex-name').value;
+        const need = parseFloat(document.getElementById('ex-need').value) || 0;
+        const want = parseFloat(document.getElementById('ex-want').value) || 0;
+        if(!name && need === 0 && want === 0) return;
+        db.exp.push({ name, need, want });
+        update();
+    }
 
-        // เพิ่มข้อมูลลงตัวแปร
-        data[type].push({ n: name, a: amt });
-
-        // บันทึกลงเครื่อง
-        localStorage.setItem('money_v2', JSON.stringify(data));
-
-        // ล้างช่องพิมพ์
-        nameInput.value = '';
-        amtInput.value = '';
-
-        // อัปเดตหน้าจอ
-        render();
+    function update() {
+        localStorage.setItem('bot_plan_db', JSON.stringify(db));
+        location.reload(); 
     }
 
     function render() {
-        const incBody = document.getElementById('incBody');
-        const expBody = document.getElementById('expBody');
-        
-        incBody.innerHTML = '';
-        expBody.innerHTML = '';
+        const incBody = document.getElementById('inc-body');
+        const expBody = document.getElementById('exp-body');
+        let sWork = 0, sSave = 0, sNeed = 0, sWant = 0;
 
-        let tInc = 0;
-        let tExp = 0;
-
-        data.inc.forEach(item => {
-            tInc += item.a;
-            incBody.innerHTML += `<tr><td>${item.n}</td><td>${item.a}</td></tr>`;
+        db.inc.forEach(i => {
+            sWork += i.work; sSave += i.save;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i.name}</td><td>${i.work}</td><td>${i.save}</td>`;
+            incBody.insertBefore(tr, incBody.firstChild);
         });
 
-        data.exp.forEach(item => {
-            tExp += item.a;
-            expBody.innerHTML += `<tr><td>${item.n}</td><td>${item.a}</td></tr>`;
+        db.exp.forEach(i => {
+            sNeed += i.need; sWant += i.want;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i.name}</td><td>${i.need}</td><td class="gray-cell">${i.want}</td>`;
+            expBody.insertBefore(tr, expBody.firstChild);
         });
 
-        const diff = tInc - tExp;
-        document.getElementById('summary').innerHTML = `
-            รายรับ: ${tInc} | รายจ่าย: ${tExp} <br>
-            <b>คงเหลือ: ${diff} บาท</b>
-        `;
+        document.getElementById('sum-in-work').innerText = sWork.toLocaleString();
+        document.getElementById('sum-in-save').innerText = sSave.toLocaleString();
+        const totalIn = sWork + sSave;
+        document.getElementById('total-income').innerText = totalIn.toLocaleString();
+        document.getElementById('final-inc').innerText = totalIn.toLocaleString();
+
+        document.getElementById('sum-ex-need').innerText = sNeed.toLocaleString();
+        document.getElementById('sum-ex-want').innerText = sWant.toLocaleString();
+        const totalEx = sNeed + sWant;
+        document.getElementById('total-expense').innerText = totalEx.toLocaleString();
+        document.getElementById('final-exp').innerText = totalEx.toLocaleString();
+
+        const msg = document.getElementById('status-msg');
+        const sign = document.getElementById('sign');
+        if(totalIn > totalEx) {
+            sign.innerText = ">";
+            msg.innerHTML = `ยินดีด้วย! แผนของคุณมีเงินเหลือออม <b>${(totalIn - totalEx).toLocaleString()}</b> บาท`;
+            msg.style.background = "#d4edda";
+        } else if(totalIn < totalEx) {
+            sign.innerText = "<";
+            msg.innerHTML = `คำเตือน! รายจ่ายมากกว่ารายรับ <b>${(totalEx - totalIn).toLocaleString()}</b> บาท ควรลดรายจ่ายไม่จำเป็น`;
+            msg.style.background = "#f8d7da";
+        }
+    }
+
+    function clearData() {
+        if(confirm("ลบข้อมูลทั้งหมด?")) {
+            localStorage.removeItem('bot_plan_db');
+            location.reload();
+        }
     }
 </script>
 
