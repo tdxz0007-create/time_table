@@ -3189,4 +3189,20 @@ window.onload = initFullApp;
     END OF PROJECT: SMART LIFE MANAGER
     ยินดีด้วย! คุณได้พัฒนาโครงสร้างแอปพลิเคชันจัดการชีวิตที่สมบูรณ์แบบ 
     ตั้งแต่ระบบพื้นฐานไปจนถึงระบบวิเคราะห์ข้อมูลและ Gamification ครับ
-*/
+*//* --- ตัวแก้ปัญหาปุ่มกดไม่ได้แบบด่วน --- */
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. ค้นหาปุ่มในหน้าจอ ไม่ว่าคุณจะตั้ง ID ว่าอะไร
+    const allButtons = document.querySelectorAll('button');
+    
+    // 2. ถ้าเจออย่างน้อย 2 ปุ่ม (Login กับ Register) จะบังคับใส่ ID ให้ถูก
+    if(allButtons.length >= 2) {
+        allButtons[0].id = 'loginBtn';
+        allButtons[1].id = 'regBtn';
+        console.log("✅ Fix: บังคับตั้งค่าปุ่ม Login/Register เรียบร้อย");
+    }
+
+    // 3. รันระบบเริ่มต้นใหม่
+    if (typeof initFullApp === 'function') {
+        initFullApp();
+    }
+});
