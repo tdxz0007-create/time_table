@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -5,80 +6,119 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ระบบรายรับรายจ่าย</title>
 
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #f4f6f9;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Kanit', sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#1e3c72,#2a5298);
+    min-height:100vh;
+    color:#fff;
 }
 
 /* container */
-.container {
-  max-width: 480px;
-  margin: auto;
-  padding: 15px;
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
 }
 
 /* card */
-.card {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.card{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(15px);
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
 }
 
 /* input */
-input, select, button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
+input,select{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-top:8px;
+    margin-bottom:15px;
+    outline:none;
+    font-size:16px;
 }
 
-button {
-  background: #007bff;
-  color: white;
-  border: none;
+/* button */
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:12px;
+    background:#00c6ff;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.3s;
 }
 
-button:hover {
-  background: #0056b3;
+button:hover{
+    background:#0072ff;
 }
 
-/* menu */
-.menu {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 10px;
+/* navbar */
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
 }
 
-.menu button {
-  flex: 1;
-  margin: 3px;
+.navbar h1{
+    font-size:22px;
 }
 
-/* hidden */
-.hidden {
-  display: none;
+.menu{
+    display:flex;
+    gap:10px;
 }
 
-/* header */
-h2 {
-  text-align: center;
+.menu button{
+    background:#ffffff22;
 }
 
-/* checkbox */
-.goal-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+/* hide */
+.hidden{
+    display:none;
 }
 
-.goal-item input {
-  width: auto;
+/* table */
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:12px;
+    text-align:center;
+}
+
+th{
+    background:#ffffff22;
+}
+
+tr:nth-child(even){
+    background:#ffffff11;
+}
+
+/* mobile */
+@media(max-width:768px){
+    .navbar{
+        flex-direction:column;
+        gap:10px;
+    }
 }
 </style>
 </head>
@@ -87,403 +127,752 @@ h2 {
 
 <div class="container">
 
-<!-- LOGIN -->
-<div id="loginPage" class="card">
-  <h2>เข้าสู่ระบบ</h2>
-  <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้">
-  <input type="password" id="loginPass" placeholder="รหัสผ่าน">
-  <button onclick="login()">เข้าสู่ระบบ</button>
-  <p style="text-align:center;">ยังไม่มีบัญชี?</p>
-  <button onclick="showRegister()">สมัครสมาชิก</button>
-</div>
+    <!-- LOGIN -->
+    <div id="loginPage" class="card">
+        <h2>เข้าสู่ระบบ</h2>
+        <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้">
+        <input type="password" id="loginPass" placeholder="รหัสผ่าน">
+        <button onclick="login()">เข้าสู่ระบบ</button>
+        <p style="margin-top:10px;">ยังไม่มีบัญชี?
+            <a href="#" onclick="showRegister()">สมัครสมาชิก</a>
+        </p>
+    </div>
 
-<!-- REGISTER -->
-<div id="registerPage" class="card hidden">
-  <h2>สมัครสมาชิก</h2>
-  <input type="text" id="regUser" placeholder="ชื่อผู้ใช้">
-  <input type="password" id="regPass" placeholder="รหัสผ่าน">
-  <button onclick="register()">สมัคร</button>
-  <button onclick="showLogin()">กลับ</button>
-</div>
+    <!-- REGISTER -->
+    <div id="registerPage" class="card hidden">
+        <h2>สมัครสมาชิก</h2>
+        <input type="text" id="regUser" placeholder="ชื่อผู้ใช้">
+        <input type="password" id="regPass" placeholder="รหัสผ่าน">
+        <button onclick="register()">สมัคร</button>
+        <p style="margin-top:10px;">
+            <a href="#" onclick="showLogin()">กลับไปเข้าสู่ระบบ</a>
+        </p>
+    </div>
 
-<!-- MAIN APP -->
-<div id="appPage" class="hidden">
+    <!-- MAIN APP -->
+    <div id="appPage" class="hidden">
 
-  <!-- MENU -->
-  <div class="menu">
-    <button onclick="showPage('incomePage')">รายรับ/รายจ่าย</button>
-    <button onclick="showPage('summaryPage')">สรุป</button>
-    <button onclick="showPage('goalPage')">เป้าหมาย</button>
-    <button onclick="logout()">ออก</button>
-  </div>
+        <!-- NAVBAR -->
+        <div class="navbar card">
+            <h1>💰 ระบบรายรับรายจ่าย</h1>
+            <div class="menu">
+                <button onclick="showIncome()">รายรับ</button>
+                <button onclick="showExpense()">รายจ่าย</button>
+                <button onclick="showSummary()">สรุป</button>
+                <button onclick="showGoals()">เป้าหมาย</button>
+                <button onclick="logout()">ออก</button>
+            </div>
+        </div>
 
-  <!-- INCOME EXPENSE PAGE -->
-  <div id="incomePage" class="card">
-    <h2>เพิ่มรายการ</h2>
-    <input type="date" id="date">
-    <input type="number" id="amount" placeholder="จำนวนเงิน">
-    <select id="type">
-      <option value="income">รายรับ</option>
-      <option value="expense">รายจ่าย</option>
-    </select>
-    <input type="text" id="note" placeholder="หมายเหตุ">
-    <button onclick="addRecord()">เพิ่ม</button>
+        <!-- CONTENT -->
+        <div id="content"></div>
 
-    <div id="recordList"></div>
-  </div>
-
-  <!-- SUMMARY PAGE -->
-  <div id="summaryPage" class="card hidden">
-    <h2>สรุป</h2>
-    <input type="date" id="startDate">
-    <input type="date" id="endDate">
-    <button onclick="calculateSummary()">คำนวณ</button>
-
-    <p id="summaryResult"></p>
-  </div>
-
-  <!-- GOAL PAGE -->
-  <div id="goalPage" class="card hidden">
-    <h2>เป้าหมาย</h2>
-    <input type="text" id="goalText" placeholder="เป้าหมาย">
-    <input type="date" id="goalDate">
-    <button onclick="addGoal()">เพิ่ม</button>
-
-    <div id="goalList"></div>
-  </div>
-
-</div>
+    </div>
 
 </div>
 
 <script>
 
-// หน้า
+/* STORAGE */
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let currentUser = null;
+
+/* PAGE SWITCH */
 function showRegister(){
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("registerPage").classList.remove("hidden");
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("registerPage").classList.remove("hidden");
 }
 
 function showLogin(){
-  document.getElementById("registerPage").classList.add("hidden");
-  document.getElementById("loginPage").classList.remove("hidden");
+    document.getElementById("registerPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
 }
 
-function showPage(pageId){
-  document.getElementById("incomePage").classList.add("hidden");
-  document.getElementById("summaryPage").classList.add("hidden");
-  document.getElementById("goalPage").classList.add("hidden");
-
-  document.getElementById(pageId).classList.remove("hidden");
-}
-
-// LOGIN SYSTEM (LocalStorage)
+/* REGISTER */
 function register(){
-  let user = document.getElementById("regUser").value;
-  let pass = document.getElementById("regPass").value;
+    let user = document.getElementById("regUser").value;
+    let pass = document.getElementById("regPass").value;
 
-  if(user && pass){
-    localStorage.setItem("user_"+user, pass);
+    if(!user || !pass){
+        alert("กรอกข้อมูลให้ครบ");
+        return;
+    }
+
+    users.push({user,pass,data:[],goals:[]});
+    localStorage.setItem("users",JSON.stringify(users));
+
     alert("สมัครสำเร็จ");
     showLogin();
-  }
 }
 
+/* LOGIN */
 function login(){
-  let user = document.getElementById("loginUser").value;
-  let pass = document.getElementById("loginPass").value;
+    let user = document.getElementById("loginUser").value;
+    let pass = document.getElementById("loginPass").value;
 
-  let saved = localStorage.getItem("user_"+user);
+    let found = users.find(u=>u.user===user && u.pass===pass);
 
-  if(saved === pass){
-    localStorage.setItem("currentUser", user);
-    document.getElementById("loginPage").classList.add("hidden");
-    document.getElementById("appPage").classList.remove("hidden");
-    loadData();
-  } else {
-    alert("ข้อมูลไม่ถูกต้อง");
-  }
+    if(found){
+        currentUser = found;
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("appPage").classList.remove("hidden");
+        showIncome();
+    }else{
+        alert("ข้อมูลไม่ถูกต้อง");
+    }
 }
 
+/* LOGOUT */
 function logout(){
-  localStorage.removeItem("currentUser");
-  location.reload();
+    currentUser = null;
+    document.getElementById("appPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
 }
-/////////////////////////////
-// STORAGE
-/////////////////////////////
-
-function getUserKey(){
-  return "data_" + localStorage.getItem("currentUser");
-}
-
-function getRecords(){
-  return JSON.parse(localStorage.getItem(getUserKey()) || "[]");
-}
-
-function saveRecords(data){
-  localStorage.setItem(getUserKey(), JSON.stringify(data));
-}
-
-/////////////////////////////
-// LOAD DATA
-/////////////////////////////
-
-function loadData(){
-  renderRecords();
-  renderGoals();
-}
-
-/////////////////////////////
-// ADD RECORD
-/////////////////////////////
-
-function addRecord(){
-  let date = document.getElementById("date").value;
-  let amount = document.getElementById("amount").value;
-  let type = document.getElementById("type").value;
-  let note = document.getElementById("note").value;
-
-  if(!date || !amount){
-    alert("กรอกข้อมูลให้ครบ");
-    return;
-  }
-
-  let records = getRecords();
-
-  records.push({
-    id: Date.now(),
-    date,
-    amount: Number(amount),
-    type,
-    note
-  });
-
-  saveRecords(records);
-  renderRecords();
-
-  document.getElementById("amount").value = "";
-  document.getElementById("note").value = "";
-}
-
-/////////////////////////////
-// RENDER RECORDS
-/////////////////////////////
-
-function renderRecords(){
-  let list = document.getElementById("recordList");
-  let records = getRecords();
-
-  list.innerHTML = "";
-
-  if(records.length === 0){
-    list.innerHTML = "<p>ยังไม่มีข้อมูล</p>";
-    return;
-  }
-
-  records.reverse().forEach(r => {
-    let div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <b>${r.date}</b><br>
-      ${r.type === "income" ? "💰 รายรับ" : "💸 รายจ่าย"}<br>
-      จำนวน: ${r.amount} บาท<br>
-      ${r.note || ""}<br>
-      <button onclick="deleteRecord(${r.id})">ลบ</button>
-    `;
-
-    list.appendChild(div);
-  });
-
-  records.reverse(); // คืนค่า
-}
-
-/////////////////////////////
-// DELETE
-/////////////////////////////
-
-function deleteRecord(id){
-  let records = getRecords();
-  records = records.filter(r => r.id !== id);
-  saveRecords(records);
-  renderRecords();
-}
-
-function deleteAllRecords(){
-  if(confirm("ลบทั้งหมด?")){
-    saveRecords([]);
-    renderRecords();
-  }
-}
-
-/////////////////////////////
-// SUMMARY
-/////////////////////////////
-
-function calculateSummary(){
-  let start = document.getElementById("startDate").value;
-  let end = document.getElementById("endDate").value;
-
-  let records = getRecords();
-
-  let income = 0;
-  let expense = 0;
-
-  records.forEach(r => {
-    if((!start || r.date >= start) && (!end || r.date <= end)){
-      if(r.type === "income") income += r.amount;
-      else expense += r.amount;
-    }
-  });
-
-  let result = `
-    รายรับ: ${income} บาท <br>
-    รายจ่าย: ${expense} บาท <br>
-    คงเหลือ: ${income - expense} บาท
-  `;
-
-  document.getElementById("summaryResult").innerHTML = result;
-}/////////////////////////////
-// GOAL STORAGE
-/////////////////////////////
-
-function getGoalKey(){
-  return "goals_" + localStorage.getItem("currentUser");
-}
-
-function getGoals(){
-  return JSON.parse(localStorage.getItem(getGoalKey()) || "[]");
-}
-
-function saveGoals(data){
-  localStorage.setItem(getGoalKey(), JSON.stringify(data));
-}
-
-/////////////////////////////
-// ADD GOAL
-/////////////////////////////
-
-function addGoal(){
-  let text = document.getElementById("goalText").value;
-  let date = document.getElementById("goalDate").value;
-
-  if(!text || !date){
-    alert("กรอกข้อมูลให้ครบ");
-    return;
-  }
-
-  let goals = getGoals();
-
-  goals.push({
-    id: Date.now(),
-    text,
-    date,
-    done: false
-  });
-
-  saveGoals(goals);
-  renderGoals();
-
-  document.getElementById("goalText").value = "";
-}
-
-/////////////////////////////
-// RENDER GOALS
-/////////////////////////////
-
-function renderGoals(){
-  let list = document.getElementById("goalList");
-  let goals = getGoals();
-
-  list.innerHTML = "";
-
-  if(goals.length === 0){
-    list.innerHTML = "<p>ยังไม่มีเป้าหมาย</p>";
-    return;
-  }
-
-  goals.reverse().forEach(g => {
-    let div = document.createElement("div");
-    div.className = "card goal-item";
-
-    div.innerHTML = `
-      <div>
-        <b>${g.text}</b><br>
-        <small>${g.date}</small>
-      </div>
-      <div>
-        <input type="checkbox" ${g.done ? "checked" : ""}
-          onchange="toggleGoal(${g.id})">
-        <button onclick="deleteGoal(${g.id})">ลบ</button>
-      </div>
-    `;
-
-    list.appendChild(div);
-  });
-
-  goals.reverse();
-}
-
-/////////////////////////////
-// TOGGLE GOAL
-/////////////////////////////
-
-function toggleGoal(id){
-  let goals = getGoals();
-
-  goals = goals.map(g => {
-    if(g.id === id){
-      g.done = !g.done;
-    }
-    return g;
-  });
-
-  saveGoals(goals);
-  renderGoals();
-}
-
-/////////////////////////////
-// DELETE GOAL
-/////////////////////////////
-
-function deleteGoal(id){
-  let goals = getGoals();
-  goals = goals.filter(g => g.id !== id);
-  saveGoals(goals);
-  renderGoals();
-}
-
-/////////////////////////////
-// AUTO LOGIN CHECK
-/////////////////////////////
-
-window.onload = function(){
-  let user = localStorage.getItem("currentUser");
-
-  if(user){
-    document.getElementById("loginPage").classList.add("hidden");
-    document.getElementById("appPage").classList.remove("hidden");
-    loadData();
-  }
-}
-
-/////////////////////////////
-// EXTRA UI IMPROVEMENTS
-/////////////////////////////
-
-// เพิ่มปุ่มลบทั้งหมดในหน้า record
-const incomePage = document.getElementById("incomePage");
-if(incomePage){
-  let btn = document.createElement("button");
-  btn.innerText = "ลบทั้งหมด";
-  btn.style.background = "red";
-  btn.onclick = deleteAllRecords;
-  incomePage.appendChild(btn);
-}
-
-/////////////////////////////
 
 </script>
+
+</body>
+```
+```html
+<script>
+
+/* =========================
+   SYSTEM INCOME / EXPENSE
+========================= */
+
+function saveData(){
+    let index = users.findIndex(u=>u.user === currentUser.user);
+    users[index] = currentUser;
+    localStorage.setItem("users",JSON.stringify(users));
+}
+
+/* =========================
+   SHOW INCOME PAGE
+========================= */
+function showIncome(){
+    renderForm("income");
+}
+
+/* =========================
+   SHOW EXPENSE PAGE
+========================= */
+function showExpense(){
+    renderForm("expense");
+}
+
+/* =========================
+   FORM + TABLE
+========================= */
+function renderForm(type){
+
+    let html = `
+    <div class="card">
+        <h2>${type === "income" ? "➕ เพิ่มรายรับ" : "➖ เพิ่มรายจ่าย"}</h2>
+
+        <input type="text" id="desc" placeholder="รายละเอียด">
+        <input type="number" id="amount" placeholder="จำนวนเงิน">
+        <input type="date" id="date">
+
+        <button onclick="addItem('${type}')">บันทึก</button>
+    </div>
+
+    <div class="card">
+        <h2>📊 รายการทั้งหมด</h2>
+
+        <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ลำดับ</th>
+                    <th>วันที่</th>
+                    <th>รายละเอียด</th>
+                    <th>จำนวน</th>
+                    <th>ประเภท</th>
+                    <th>ลบ</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let data = currentUser.data;
+
+    data.forEach((item,index)=>{
+        if(item.type === type){
+            html += `
+                <tr>
+                    <td>${index+1}</td>
+                    <td>${formatDate(item.date)}</td>
+                    <td>${item.desc}</td>
+                    <td style="color:${type==="income"?"#00ff99":"#ff4d4d"}">
+                        ${item.amount.toLocaleString()} บาท
+                    </td>
+                    <td>${type==="income"?"รายรับ":"รายจ่าย"}</td>
+                    <td>
+                        <button onclick="deleteItem(${index})" style="background:#ff4d4d;">ลบ</button>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+
+    html += `
+            </tbody>
+        </table>
+        </div>
+
+        <button style="margin-top:15px;background:#ff0000;" onclick="clearAll('${type}')">
+            ลบทั้งหมด (${type==="income"?"รายรับ":"รายจ่าย"})
+        </button>
+
+    </div>
+    `;
+
+    document.getElementById("content").innerHTML = html;
+}
+
+/* =========================
+   ADD ITEM
+========================= */
+function addItem(type){
+    let desc = document.getElementById("desc").value;
+    let amount = document.getElementById("amount").value;
+    let date = document.getElementById("date").value;
+
+    if(!desc || !amount || !date){
+        alert("กรอกข้อมูลให้ครบ");
+        return;
+    }
+
+    currentUser.data.push({
+        desc:desc,
+        amount:Number(amount),
+        date:date,
+        type:type
+    });
+
+    saveData();
+    renderForm(type);
+}
+
+/* =========================
+   DELETE ITEM
+========================= */
+function deleteItem(index){
+    if(confirm("ต้องการลบใช่ไหม?")){
+        currentUser.data.splice(index,1);
+        saveData();
+        showIncome();
+    }
+}
+
+/* =========================
+   CLEAR ALL
+========================= */
+function clearAll(type){
+    if(confirm("ลบทั้งหมดจริงไหม?")){
+        currentUser.data = currentUser.data.filter(item=>item.type !== type);
+        saveData();
+        renderForm(type);
+    }
+}
+
+/* =========================
+   FORMAT DATE
+========================= */
+function formatDate(dateStr){
+    let d = new Date(dateStr);
+    let day = d.getDate();
+    let month = d.getMonth()+1;
+    let year = d.getFullYear()+543;
+
+    return `${day}/${month}/${year}`;
+}
+
+</script>
+```
+```html id="z9qkdl"
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+/* =========================
+   SUMMARY PAGE
+========================= */
+function showSummary(){
+
+    let html = `
+    <div class="card">
+        <h2>📊 สรุปข้อมูล</h2>
+
+        <label>เลือกระยะเวลา</label>
+        <select id="filterType" onchange="renderSummary()">
+            <option value="all">ทั้งหมด</option>
+            <option value="day">วันนี้</option>
+            <option value="month">เดือนนี้</option>
+            <option value="year">ปีนี้</option>
+            <option value="custom">กำหนดเอง</option>
+        </select>
+
+        <div id="customRange" style="display:none;">
+            <input type="date" id="startDate">
+            <input type="date" id="endDate">
+        </div>
+
+        <button onclick="renderSummary()">คำนวณ</button>
+    </div>
+
+    <div class="card">
+        <h2>💰 ผลลัพธ์</h2>
+        <h3 id="totalIncome">รายรับ: 0</h3>
+        <h3 id="totalExpense">รายจ่าย: 0</h3>
+        <h2 id="balance">คงเหลือ: 0</h2>
+    </div>
+
+    <div class="card">
+        <canvas id="myChart"></canvas>
+    </div>
+    `;
+
+    document.getElementById("content").innerHTML = html;
+
+    renderSummary();
+}
+
+/* =========================
+   FILTER DATA
+========================= */
+function getFilteredData(){
+
+    let type = document.getElementById("filterType").value;
+    let data = currentUser.data;
+    let now = new Date();
+
+    if(type === "all") return data;
+
+    return data.filter(item=>{
+        let d = new Date(item.date);
+
+        if(type === "day"){
+            return d.toDateString() === now.toDateString();
+        }
+
+        if(type === "month"){
+            return d.getMonth() === now.getMonth() &&
+                   d.getFullYear() === now.getFullYear();
+        }
+
+        if(type === "year"){
+            return d.getFullYear() === now.getFullYear();
+        }
+
+        if(type === "custom"){
+            let start = new Date(document.getElementById("startDate").value);
+            let end = new Date(document.getElementById("endDate").value);
+            return d >= start && d <= end;
+        }
+
+    });
+
+}
+
+/* =========================
+   RENDER SUMMARY
+========================= */
+function renderSummary(){
+
+    let filterType = document.getElementById("filterType").value;
+
+    document.getElementById("customRange").style.display =
+        filterType === "custom" ? "block" : "none";
+
+    let data = getFilteredData();
+
+    let income = 0;
+    let expense = 0;
+
+    data.forEach(item=>{
+        if(item.type === "income") income += item.amount;
+        else expense += item.amount;
+    });
+
+    let balance = income - expense;
+
+    document.getElementById("totalIncome").innerText =
+        "รายรับ: " + income.toLocaleString() + " บาท";
+
+    document.getElementById("totalExpense").innerText =
+        "รายจ่าย: " + expense.toLocaleString() + " บาท";
+
+    document.getElementById("balance").innerText =
+        "คงเหลือ: " + balance.toLocaleString() + " บาท";
+
+    renderChart(income,expense);
+}
+
+/* =========================
+   CHART
+========================= */
+let chart;
+
+function renderChart(income,expense){
+
+    let ctx = document.getElementById("myChart").getContext("2d");
+
+    if(chart){
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx,{
+        type:'doughnut',
+        data:{
+            labels:['รายรับ','รายจ่าย'],
+            datasets:[{
+                data:[income,expense],
+                backgroundColor:[
+                    '#00ff99',
+                    '#ff4d4d'
+                ]
+            }]
+        },
+        options:{
+            responsive:true,
+            plugins:{
+                legend:{
+                    labels:{
+                        color:'#fff'
+                    }
+                }
+            }
+        }
+    });
+}
+
+</script>
+```
+```html id="goal4sys"
+<script>
+
+/* =========================
+   GOALS PAGE
+========================= */
+function showGoals(){
+
+    let html = `
+    <div class="card">
+        <h2>🎯 ตั้งเป้าหมาย</h2>
+
+        <input type="text" id="goalText" placeholder="เช่น เก็บเงิน 10,000">
+        <input type="number" id="goalAmount" placeholder="จำนวนเงินเป้าหมาย">
+        <input type="date" id="goalDate">
+
+        <button onclick="addGoal()">เพิ่มเป้าหมาย</button>
+    </div>
+
+    <div class="card">
+        <h2>📌 รายการเป้าหมาย</h2>
+
+        <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>เป้าหมาย</th>
+                    <th>จำนวน</th>
+                    <th>วันที่</th>
+                    <th>สถานะ</th>
+                    <th>ลบ</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let goals = currentUser.goals || [];
+
+    goals.forEach((g,index)=>{
+
+        let progress = calculateProgress(g.amount);
+
+        html += `
+        <tr>
+            <td>${index+1}</td>
+            <td>${g.text}</td>
+            <td>${g.amount.toLocaleString()} บาท</td>
+            <td>${formatDate(g.date)}</td>
+            <td>
+                <button onclick="toggleGoal(${index})"
+                    style="background:${g.done ? '#00cc66' : '#ffaa00'}">
+                    ${g.done ? '✔️ สำเร็จ' : '⌛ กำลังทำ'}
+                </button>
+
+                <div style="margin-top:5px;">
+                    <div style="
+                        width:100%;
+                        background:#ffffff22;
+                        border-radius:10px;
+                        overflow:hidden;
+                        height:10px;">
+                        <div style="
+                            width:${progress}%;
+                            background:#00ffcc;
+                            height:100%;">
+                        </div>
+                    </div>
+                    <small>${progress.toFixed(0)}%</small>
+                </div>
+
+            </td>
+            <td>
+                <button onclick="deleteGoal(${index})" style="background:#ff4d4d;">
+                    ลบ
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+        </div>
+
+        <button style="margin-top:15px;background:#ff0000;" onclick="clearGoals()">
+            ลบเป้าหมายทั้งหมด
+        </button>
+
+    </div>
+    `;
+
+    document.getElementById("content").innerHTML = html;
+}
+
+/* =========================
+   ADD GOAL
+========================= */
+function addGoal(){
+
+    let text = document.getElementById("goalText").value;
+    let amount = document.getElementById("goalAmount").value;
+    let date = document.getElementById("goalDate").value;
+
+    if(!text || !amount || !date){
+        alert("กรอกข้อมูลให้ครบ");
+        return;
+    }
+
+    currentUser.goals.push({
+        text:text,
+        amount:Number(amount),
+        date:date,
+        done:false
+    });
+
+    saveData();
+    showGoals();
+}
+
+/* =========================
+   TOGGLE DONE
+========================= */
+function toggleGoal(index){
+    currentUser.goals[index].done = !currentUser.goals[index].done;
+    saveData();
+    showGoals();
+}
+
+/* =========================
+   DELETE GOAL
+========================= */
+function deleteGoal(index){
+    if(confirm("ลบเป้าหมายนี้?")){
+        currentUser.goals.splice(index,1);
+        saveData();
+        showGoals();
+    }
+}
+
+/* =========================
+   CLEAR GOALS
+========================= */
+function clearGoals(){
+    if(confirm("ลบทั้งหมดจริงไหม?")){
+        currentUser.goals = [];
+        saveData();
+        showGoals();
+    }
+}
+
+/* =========================
+   PROGRESS CALCULATION
+========================= */
+function calculateProgress(goalAmount){
+
+    let total = 0;
+
+    currentUser.data.forEach(item=>{
+        if(item.type === "income"){
+            total += item.amount;
+        }
+    });
+
+    let percent = (total / goalAmount) * 100;
+
+    if(percent > 100) percent = 100;
+
+    return percent;
+}
+
+</script>
+```
+```html id="final5close"
+<script>
+
+/* =========================
+   AUTO LOGIN
+========================= */
+window.onload = function(){
+
+    let savedUser = localStorage.getItem("currentUser");
+
+    if(savedUser){
+        let userObj = JSON.parse(savedUser);
+
+        let found = users.find(u=>u.user === userObj.user);
+
+        if(found){
+            currentUser = found;
+
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("appPage").classList.remove("hidden");
+
+            showIncome();
+        }
+    }
+};
+
+/* =========================
+   SAVE CURRENT USER SESSION
+========================= */
+function login(){
+    let user = document.getElementById("loginUser").value;
+    let pass = document.getElementById("loginPass").value;
+
+    let found = users.find(u=>u.user===user && u.pass===pass);
+
+    if(found){
+        currentUser = found;
+
+        localStorage.setItem("currentUser",JSON.stringify({user:user}));
+
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("appPage").classList.remove("hidden");
+
+        showIncome();
+    }else{
+        alert("ข้อมูลไม่ถูกต้อง");
+    }
+}
+
+/* =========================
+   LOGOUT CLEAR SESSION
+========================= */
+function logout(){
+    currentUser = null;
+
+    localStorage.removeItem("currentUser");
+
+    document.getElementById("appPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
+}
+
+/* =========================
+   ANIMATION SYSTEM
+========================= */
+document.addEventListener("click",function(e){
+
+    if(e.target.tagName === "BUTTON"){
+        e.target.style.transform = "scale(0.95)";
+        setTimeout(()=>{
+            e.target.style.transform = "scale(1)";
+        },150);
+    }
+
+});
+
+/* =========================
+   SAFE INPUT (ANTI BUG)
+========================= */
+document.addEventListener("input",function(e){
+
+    if(e.target.type === "number"){
+        if(e.target.value < 0){
+            e.target.value = 0;
+        }
+    }
+
+});
+
+/* =========================
+   PREVENT EMPTY DATE BUG
+========================= */
+function getToday(){
+    let d = new Date();
+    return d.toISOString().split("T")[0];
+}
+
+document.addEventListener("focusin",function(e){
+    if(e.target.type === "date" && !e.target.value){
+        e.target.value = getToday();
+    }
+});
+
+/* =========================
+   MOBILE TOUCH SMOOTH
+========================= */
+document.body.style.webkitTapHighlightColor = "transparent";
+
+/* =========================
+   EXTRA: DARK MODE AUTO
+========================= */
+if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+    document.body.style.background = "linear-gradient(135deg,#0f2027,#203a43,#2c5364)";
+}
+
+/* =========================
+   EXTRA: SCROLL SMOOTH
+========================= */
+document.documentElement.style.scrollBehavior = "smooth";
+
+/* =========================
+   EXTRA: TOAST SYSTEM
+========================= */
+function toast(msg){
+
+    let t = document.createElement("div");
+
+    t.innerText = msg;
+
+    t.style.position = "fixed";
+    t.style.bottom = "20px";
+    t.style.left = "50%";
+    t.style.transform = "translateX(-50%)";
+    t.style.background = "#000000cc";
+    t.style.padding = "10px 20px";
+    t.style.borderRadius = "10px";
+    t.style.color = "#fff";
+    t.style.zIndex = "9999";
+
+    document.body.appendChild(t);
+
+    setTimeout(()=>{
+        t.remove();
+    },2000);
+}
+
+/* ใช้ toast แทน alert */
+window.alert = toast;
+
+</script>
+
 </body>
 </html>
+```
