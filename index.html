@@ -3,294 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All-in-One: Finance & Schedule</title>
+    <title>Multi-Year Finance & Planner</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6c5ce7;
-            --secondary: #a29bfe;
-            --success: #00b894;
-            --danger: #d63031;
-            --bg: #f8f9fa;
-            --dark: #2d3436;
+            --primary: #4834d4;
+            --secondary: #686de0;
+            --success: #2ecc71;
+            --danger: #eb4d4b;
+            --bg: #f1f2f6;
         }
 
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
+        body { font-family: 'Kanit', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 600px; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        
+        /* Navigation */
+        nav { display: flex; background: white; sticky; top: 0; z-index: 10; border-bottom: 2px solid #eee; }
+        nav button { flex: 1; padding: 15px; border: none; background: none; cursor: pointer; font-family: 'Kanit'; font-weight: 600; color: #999; transition: 0.3s; }
+        nav button.active { color: var(--primary); border-bottom: 4px solid var(--primary); }
 
-        .container {
-            background: white;
-            width: 100%;
-            max-width: 500px;
-            min-height: 100vh;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* --- Auth Section --- */
-        .auth-container { padding: 40px 20px; text-align: center; }
-        .auth-box input {
-            width: 100%; padding: 12px; margin: 10px 0;
-            border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box;
-        }
-
-        /* --- Header & Nav --- */
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 0 0 20px 20px;
-        }
-
-        nav {
-            display: flex;
-            background: white;
-            padding: 10px;
-            justify-content: border-around;
-            border-bottom: 1px solid #eee;
-        }
-
-        nav button {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 10px;
-            font-family: 'Kanit';
-            font-weight: 600;
-            color: #ccc;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        nav button.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
-
-        /* --- Content Area --- */
+        /* Content */
         .content { padding: 20px; flex: 1; }
         .page { display: none; }
         .page.active { display: block; }
 
-        /* --- Finance Styles --- */
-        .balance-card {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px;
-        }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
+        /* Dashboard Card */
+        .card { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        .filter-section { display: flex; gap: 10px; margin-bottom: 15px; background: #eee; padding: 10px; border-radius: 10px; }
+        .filter-section select { flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
 
-        /* --- Schedule Styles --- */
-        .schedule-item {
-            display: flex; align-items: center;
-            background: #fff; padding: 15px; border-radius: 12px;
-            margin-bottom: 10px; border-left: 5px solid var(--secondary);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .time-tag { background: #eee; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; margin-right: 15px; }
+        /* Form & Inputs */
+        .form-group { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        input, select, button.btn-add { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-family: 'Kanit'; }
+        button.btn-add { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; }
+        
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #eee; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .amt-plus { color: var(--success); font-weight: bold; }
+        .amt-minus { color: var(--danger); font-weight: bold; }
 
-        /* --- Common Elements --- */
-        input, select, .btn-main {
-            width: 100%; padding: 12px; margin-top: 10px;
-            border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box;
-            font-family: 'Kanit';
-        }
-        .btn-main { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; }
-        .btn-logout { background: #b2bec3; margin-top: 30px; }
-        .list-container { margin-top: 20px; max-height: 300px; overflow-y: auto; }
-        .item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
-        .plus { color: var(--success); }
-        .minus { color: var(--danger); }
+        /* Auth */
+        .auth-screen { padding: 50px 20px; text-align: center; }
         .hidden { display: none; }
+        .btn-logout { background: #95a5a6; color: white; margin-top: 20px; border: none; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; font-family: 'Kanit'; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- หน้าล็อคอิน -->
-    <div id="auth-section" class="auth-container">
+    <!-- Login Section -->
+    <div id="auth-section" class="auth-screen">
         <h2 id="auth-title">เข้าสู่ระบบ</h2>
-        <div class="auth-box">
-            <input type="text" id="username" placeholder="ชื่อผู้ใช้งาน">
-            <input type="password" id="password" placeholder="รหัสผ่าน">
-            <button class="btn-main" onclick="handleAuth()">ตกลง</button>
-            <p onclick="toggleAuthMode()" style="cursor:pointer; color: var(--primary); font-size: 0.9rem; margin-top: 15px;">
-                <span id="toggle-text">ยังไม่มีบัญชี? สมัครสมาชิก</span>
-            </p>
-        </div>
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้งาน">
+        <input type="password" id="password" placeholder="รหัสผ่าน">
+        <button class="btn-add" onclick="handleAuth()">เริ่มใช้งาน</button>
+        <p onclick="toggleAuth()" id="toggle-text" style="color: var(--primary); cursor: pointer; margin-top: 15px;">ยังไม่มีบัญชี? สมัครสมาชิก</p>
     </div>
 
-    <!-- ส่วนของแอปพลิเคชัน -->
+    <!-- Main Application Section -->
     <div id="app-section" class="hidden">
-        <header>
-            <h3 style="margin:0">ยินดีต้อนรับ, <span id="user-display"></span></h3>
-        </header>
-
         <nav>
-            <button id="nav-finance" class="active" onclick="showPage('finance')">รายรับ-รายจ่าย</button>
-            <button id="nav-schedule" onclick="showPage('schedule')">ตารางเวลา</button>
+            <button id="nav-fin" class="active" onclick="showPage('fin')">💰 รายรับ-รายจ่าย</button>
+            <button id="nav-plan" onclick="showPage('plan')">📅 ตารางแผนงาน</button>
         </nav>
 
         <div class="content">
-            <!-- หน้า: รายรับรายจ่าย -->
-            <div id="page-finance" class="page active">
-                <div class="balance-card">
-                    <small>เงินคงเหลือทั้งหมด</small>
-                    <h1 id="balance" style="margin:5px 0">฿0.00</h1>
+            <!-- หน้า: รายรับ-รายจ่าย -->
+            <div id="page-fin" class="page active">
+                <div class="card">
+                    <small>ยอดคงเหลือตามตัวกรอง</small>
+                    <h2 id="summary-total">฿0.00</h2>
                 </div>
-                <div class="stats">
-                    <div class="stat-box" style="background: var(--success);">
-                        <small>รายรับ</small><br><strong id="money-plus">฿0</strong>
-                    </div>
-                    <div class="stat-box" style="background: var(--danger);">
-                        <small>รายจ่าย</small><br><strong id="money-minus">฿0</strong>
-                    </div>
+
+                <div class="filter-section">
+                    <select id="filter-year" onchange="updateFinanceUI()"></select>
+                    <select id="filter-month" onchange="updateFinanceUI()">
+                        <option value="all">ทุกเดือน</option>
+                        <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option>
+                        <option value="03">มีนาคม</option><option value="04">เมษายน</option>
+                        <option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
+                        <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option>
+                        <option value="09">กันยายน</option><option value="10">ตุลาคม</option>
+                        <option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+                    </select>
                 </div>
-                <input type="text" id="fin-text" placeholder="ชื่อรายการ">
-                <input type="number" id="fin-amount" placeholder="จำนวนเงิน (ติดลบคือรายจ่าย)">
-                <button class="btn-main" onclick="addTransaction()">บันทึกรายการ</button>
-                <div id="fin-list" class="list-container"></div>
+
+                <div class="form-group">
+                    <input type="date" id="fin-date">
+                    <input type="text" id="fin-note" placeholder="รายการ เช่น เงินเดือน, ซื้อของ">
+                    <input type="number" id="fin-amount" placeholder="จำนวนเงิน (รายจ่ายใส่ติดลบ -)">
+                    <button class="btn-add" onclick="addFinance()">บันทึกข้อมูล</button>
+                </div>
+
+                <table>
+                    <thead><tr><th>ว/ด/ป</th><th>รายการ</th><th>จำนวน</th></tr></thead>
+                    <tbody id="fin-table-body"></tbody>
+                </table>
             </div>
 
-            <!-- หน้า: ตารางเวลา -->
-            <div id="page-schedule" class="page">
-                <h3 style="margin-top:0">📅 วางแผนวันนี้</h3>
-                <input type="time" id="sched-time">
-                <input type="text" id="sched-task" placeholder="สิ่งที่ต้องทำ...">
-                <button class="btn-main" style="background: var(--secondary);" onclick="addSchedule()">เพิ่มตารางเวลา</button>
-                
-                <div id="sched-list" class="list-container" style="margin-top: 20px;">
-                    <!-- ตารางเวลาจะปรากฏตรงนี้ -->
+            <!-- หน้า: ตารางแผนงาน -->
+            <div id="page-plan" class="page">
+                <h3>📅 แผนงานระยะยาว</h3>
+                <div class="form-group">
+                    <input type="date" id="plan-date">
+                    <input type="text" id="plan-task" placeholder="กิจกรรม/สิ่งที่ต้องทำ">
+                    <button class="btn-add" style="background: var(--secondary);" onclick="addPlan()">เพิ่มแผนงาน</button>
                 </div>
+
+                <div id="plan-list"></div>
             </div>
 
-            <button class="btn-main btn-logout" onclick="logout()">ออกจากระบบ</button>
+            <button class="btn-logout" onclick="location.reload()">ออกจากระบบ</button>
         </div>
     </div>
 </div>
 
 <script>
-    let isLoginMode = true;
+    let isLogin = true;
     let currentUser = null;
 
-    // --- ส่วนจัดการหน้าจอ (Navigation) ---
-    function showPage(pageName) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        
-        document.getElementById(`page-${pageName}`).classList.add('active');
-        document.getElementById(`nav-${pageName}`).classList.add('active');
-    }
-
     // --- ระบบสมาชิก ---
-    function toggleAuthMode() {
-        isLoginMode = !isLoginMode;
-        document.getElementById('auth-title').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
-        document.getElementById('toggle-text').innerText = isLoginMode ? 'ยังไม่มีบัญชี? สมัครสมาชิก' : 'มีบัญชีแล้ว? เข้าสู่ระบบ';
+    function toggleAuth() {
+        isLogin = !isLogin;
+        document.getElementById('auth-title').innerText = isLogin ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+        document.getElementById('toggle-text').innerText = isLogin ? 'ยังไม่มีบัญชี? สมัครสมาชิก' : 'มีบัญชีแล้ว? เข้าสู่ระบบ';
     }
 
     function handleAuth() {
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
-        const users = JSON.parse(localStorage.getItem('myAppUsers')) || {};
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        if(!u || !p) return alert('กรุณากรอกข้อมูล');
 
-        if (!user || !pass) return alert('กรุณากรอกให้ครบ');
-
-        if (isLoginMode) {
-            if (users[user] && users[user].password === pass) {
-                login(user);
-            } else { alert('ข้อมูลไม่ถูกต้อง'); }
+        let users = JSON.parse(localStorage.getItem('multiYearApp')) || {};
+        if(isLogin) {
+            if(users[u] && users[u].password === p) login(u);
+            else alert('ข้อมูลไม่ถูกต้อง');
         } else {
-            if (users[user]) return alert('ชื่อนี้ถูกใช้ไปแล้ว');
-            users[user] = { password: pass, transactions: [], schedules: [] };
-            localStorage.setItem('myAppUsers', JSON.stringify(users));
-            alert('สมัครสำเร็จ! เข้าระบบได้เลย');
-            toggleAuthMode();
+            if(users[u]) return alert('ชื่อนี้ถูกใช้แล้ว');
+            users[u] = { password: p, finance: [], plans: [] };
+            localStorage.setItem('multiYearApp', JSON.stringify(users));
+            alert('สมัครสมาชิกสำเร็จ!'); toggleAuth();
         }
     }
 
-    function login(username) {
-        currentUser = username;
+    function login(u) {
+        currentUser = u;
         document.getElementById('auth-section').classList.add('hidden');
         document.getElementById('app-section').classList.remove('hidden');
-        document.getElementById('user-display').innerText = username;
+        initYearFilter();
         updateFinanceUI();
-        updateScheduleUI();
+        updatePlanUI();
     }
 
-    function logout() { location.reload(); }
+    // --- ระบบจัดการหน้าจอ ---
+    function showPage(p) {
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+        document.getElementById('page-'+p).classList.add('active');
+        document.getElementById('nav-'+p).classList.add('active');
+    }
 
-    // --- ระบบรายรับรายจ่าย ---
-    function addTransaction() {
-        const text = document.getElementById('fin-text').value;
+    function initYearFilter() {
+        const yearSelect = document.getElementById('filter-year');
+        const currentYear = new Date().getFullYear();
+        for(let i = currentYear; i >= currentYear - 5; i--) {
+            let opt = document.createElement('option');
+            opt.value = i; opt.innerText = "ปี " + (i + 543);
+            yearSelect.appendChild(opt);
+        }
+        document.getElementById('fin-date').valueAsDate = new Date();
+        document.getElementById('plan-date').valueAsDate = new Date();
+    }
+
+    // --- รายรับรายจ่าย ---
+    function addFinance() {
+        const date = document.getElementById('fin-date').value;
+        const note = document.getElementById('fin-note').value;
         const amount = document.getElementById('fin-amount').value;
-        if (!text || !amount) return;
+        if(!date || !note || !amount) return;
 
-        const users = JSON.parse(localStorage.getItem('myAppUsers'));
-        users[currentUser].transactions.push({ text, amount: +amount });
-        localStorage.setItem('myAppUsers', JSON.stringify(users));
+        let users = JSON.parse(localStorage.getItem('multiYearApp'));
+        users[currentUser].finance.push({ date, note, amount: parseFloat(amount) });
+        localStorage.setItem('multiYearApp', JSON.stringify(users));
         
-        document.getElementById('fin-text').value = '';
+        document.getElementById('fin-note').value = '';
         document.getElementById('fin-amount').value = '';
         updateFinanceUI();
     }
 
     function updateFinanceUI() {
-        const users = JSON.parse(localStorage.getItem('myAppUsers'));
-        const data = users[currentUser].transactions;
-        const list = document.getElementById('fin-list');
-        list.innerHTML = '';
-
-        let total = 0, inc = 0, exp = 0;
-        data.forEach(t => {
-            total += t.amount;
-            if(t.amount > 0) inc += t.amount; else exp += t.amount;
-            
-            list.innerHTML += `
-                <div class="item">
-                    <span>${t.text}</span>
-                    <span class="${t.amount > 0 ? 'plus' : 'minus'}">${t.amount > 0 ? '+' : ''}${t.amount}</span>
-                </div>`;
+        const users = JSON.parse(localStorage.getItem('multiYearApp'));
+        const fYear = document.getElementById('filter-year').value;
+        const fMonth = document.getElementById('filter-month').value;
+        
+        let filtered = users[currentUser].finance.filter(item => {
+            const d = new Date(item.date);
+            const yMatch = d.getFullYear().toString() === fYear;
+            const mMatch = fMonth === 'all' || (d.getMonth() + 1).toString().padStart(2, '0') === fMonth;
+            return yMatch && mMatch;
         });
 
-        document.getElementById('balance').innerText = `฿${total.toLocaleString()}`;
-        document.getElementById('money-plus').innerText = `฿${inc.toLocaleString()}`;
-        document.getElementById('money-minus').innerText = `฿${Math.abs(exp).toLocaleString()}`;
+        // เรียงวันที่
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const tbody = document.getElementById('fin-table-body');
+        tbody.innerHTML = '';
+        let total = 0;
+
+        filtered.forEach(item => {
+            total += item.amount;
+            const row = `<tr>
+                <td>${new Date(item.date).toLocaleDateString('th-TH')}</td>
+                <td>${item.note}</td>
+                <td class="${item.amount >= 0 ? 'amt-plus' : 'amt-minus'}">${item.amount.toLocaleString()}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+        document.getElementById('summary-total').innerText = `฿${total.toLocaleString()}`;
     }
 
-    // --- ระบบตารางเวลา ---
-    function addSchedule() {
-        const time = document.getElementById('sched-time').value;
-        const task = document.getElementById('sched-task').value;
-        if (!time || !task) return;
+    // --- ตารางแผนงาน ---
+    function addPlan() {
+        const date = document.getElementById('plan-date').value;
+        const task = document.getElementById('plan-task').value;
+        if(!date || !task) return;
 
-        const users = JSON.parse(localStorage.getItem('myAppUsers'));
-        users[currentUser].schedules.push({ time, task });
-        // เรียงเวลาจากเช้าไปเย็น
-        users[currentUser].schedules.sort((a, b) => a.time.localeCompare(b.time));
+        let users = JSON.parse(localStorage.getItem('multiYearApp'));
+        users[currentUser].plans.push({ date, task });
+        localStorage.setItem('multiYearApp', JSON.stringify(users));
         
-        localStorage.setItem('myAppUsers', JSON.stringify(users));
-        document.getElementById('sched-task').value = '';
-        updateScheduleUI();
+        document.getElementById('plan-task').value = '';
+        updatePlanUI();
     }
 
-    function updateScheduleUI() {
-        const users = JSON.parse(localStorage.getItem('myAppUsers'));
-        const data = users[currentUser].schedules;
-        const list = document.getElementById('sched-list');
+    function updatePlanUI() {
+        const users = JSON.parse(localStorage.getItem('multiYearApp'));
+        let plans = users[currentUser].plans;
+        plans.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        const list = document.getElementById('plan-list');
         list.innerHTML = '';
 
-        data.forEach(s => {
+        plans.forEach(p => {
+            const dateStr = new Date(p.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
             list.innerHTML += `
-                <div class="schedule-item">
-                    <div class="time-tag">${s.time}</div>
-                    <div>${s.task}</div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--secondary);">
+                    <small style="color: #666;">${dateStr}</small>
+                    <div style="font-weight: 600;">${p.task}</div>
                 </div>`;
         });
     }
