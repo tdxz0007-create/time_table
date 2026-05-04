@@ -2,475 +2,1056 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Life OS - Finance & Planner</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultimate Life OS | Comprehensive Management System</title>
+    
+    <!-- External Resources -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
     <style>
+        /* =========================================
+           PART 1: DESIGN SYSTEM & CORE CSS
+           ========================================= */
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #ff9f43;
-            --dark: #212529;
-            --light: #f8f9fa;
-            --sidebar-width: 260px;
-            --glass: rgba(255, 255, 255, 0.9);
-            --shadow: 0 8px 30px rgba(0,0,0,0.08);
+            /* Palette - Primary */
+            --p-h: 231; --p-s: 77%; --p-l: 60%;
+            --primary: hsl(var(--p-h), var(--p-s), var(--p-l));
+            --primary-dark: hsl(var(--p-h), var(--p-s), 45%);
+            --primary-light: hsl(var(--p-h), var(--p-s), 95%);
+            
+            /* Palette - Semantic */
+            --success: #00b894;
+            --danger: #ff7675;
+            --warning: #f1c40f;
+            --info: #0984e3;
+            
+            /* Neutrals */
+            --dark: #2d3436;
+            --gray-1: #636e72;
+            --gray-2: #b2bec3;
+            --gray-3: #dfe6e9;
+            --light: #f9f9fb;
+            --white: #ffffff;
+
+            /* Spacing & Sizes */
+            --radius-sm: 8px;
+            --radius-md: 15px;
+            --radius-lg: 25px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --sidebar-w: 280px;
+            --nav-h: 70px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; font-family: 'Kanit', sans-serif; transition: all 0.25s ease; }
-        body { background: #eef2f7; margin: 0; color: var(--dark); overflow-x: hidden; }
-
-        /* --- Auth Section --- */
-        .auth-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .auth-card {
-            background: white; padding: 40px; border-radius: 30px; width: 100%; max-width: 400px;
-            text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        /* Base Reset */
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- Main Layout --- */
-        .app-container { display: flex; min-height: 100vh; }
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--light); }
+        ::-webkit-scrollbar-thumb { background: var(--gray-2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--gray-1); }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .animate-fade { animation: fadeInUp 0.5s ease forwards; }
+
+        /* Shared Components */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-3);
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-icon { padding: 10px; border-radius: 50%; }
+
+        /* Form Inputs */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; color: var(--gray-1); }
         
-        aside {
-            width: var(--sidebar-width); background: white;
-            padding: 30px 20px; display: flex; flex-direction: column;
-            border-right: 1px solid #dee2e6; position: fixed; height: 100vh; z-index: 99;
+        input[type="text"], input[type="password"], input[type="number"], 
+        input[type="date"], input[type="datetime-local"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--gray-3);
+            background: var(--white);
+            font-size: 1rem;
+            transition: var(--transition);
+            outline: none;
         }
 
-        main { flex: 1; margin-left: var(--sidebar-width); padding: 40px; background: #f4f7fe; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-light); }
 
-        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
-
-        .menu-item {
-            padding: 14px 18px; border-radius: 12px; cursor: pointer; color: #6c757d;
-            margin-bottom: 8px; display: flex; align-items: center; gap: 12px; font-weight: 500;
+        /* Badge Styles */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
         }
-        .menu-item:hover, .menu-item.active { background: #f0f3ff; color: var(--primary); }
 
-        /* --- Components --- */
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: var(--shadow); margin-bottom: 30px; border: none; }
-        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px; }
-
-        .stat-card { padding: 25px; border-radius: 20px; color: white; position: relative; overflow: hidden; }
-        .stat-card h3 { margin: 0; font-size: 0.9rem; opacity: 0.9; font-weight: 400; }
-        .stat-card h2 { margin: 10px 0 0; font-size: 1.8rem; }
-        .bg-blue { background: linear-gradient(45deg, #4361ee, #4cc9f0); }
-        .bg-green { background: linear-gradient(45deg, #2ecc71, #27ae60); }
-        .bg-pink { background: linear-gradient(45deg, #f72585, #ff4d6d); }
-
-        /* --- Form --- */
-        .form-input-group { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        input, select { 
-            padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 12px; 
-            outline: none; font-size: 0.95rem; background: #fafafa;
-        }
-        input:focus { border-color: var(--primary); background: white; }
-        .btn { 
-            padding: 12px 25px; border-radius: 12px; border: none; cursor: pointer; 
-            font-weight: 600; display: flex; align-items: center; gap: 8px;
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--secondary); transform: translateY(-2px); }
-
-        /* --- Finance Table --- */
-        .table-wrap { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 15px; color: #adb5bd; font-weight: 500; border-bottom: 1px solid #eee; }
-        td { padding: 18px 15px; border-bottom: 1px solid #f8f9fa; }
-        .tag { padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
-        .tag-income { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
-        .tag-expense { background: rgba(247, 37, 133, 0.1); color: #f72585; }
-
-        /* --- Checklist Plan --- */
-        .todo-item {
-            display: flex; align-items: center; padding: 15px; background: #fff;
-            border-radius: 15px; margin-bottom: 12px; border: 1px solid #f0f0f0;
-        }
-        .todo-item.completed { opacity: 0.6; }
-        .todo-item.completed .task-text { text-decoration: line-through; }
-        .check-btn { 
-            width: 24px; height: 24px; border: 2px solid var(--primary); border-radius: 6px;
-            margin-right: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .check-btn.checked { background: var(--primary); color: white; }
-        .task-text { flex: 1; font-weight: 500; }
-        .task-date { font-size: 0.8rem; color: #999; margin-right: 15px; }
-
+        /* Utils */
+        .text-center { text-align: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .hidden { display: none !important; }
-        .logout-btn { margin-top: auto; color: var(--danger); border: 1px solid var(--danger); }
-        .logout-btn:hover { background: var(--danger); color: white; }
 
+        /* Auth Screen Special CSS */
+        #auth-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, var(--primary), var(--primary-dark));
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%; max-width: 450px;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .auth-logo {
+            font-size: 3rem; color: var(--primary); margin-bottom: 10px;
+        }
+
+        /* Responsive Breakpoints */
         @media (max-width: 992px) {
-            aside { width: 80px; padding: 20px 10px; }
-            aside span { display: none; }
-            main { margin-left: 80px; padding: 20px; }
+            :root { --sidebar-w: 80px; }
+            .sidebar-text { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .card { padding: 15px; }
+            .btn { padding: 10px 16px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
 
-<!-- Authentication -->
-<div id="auth-screen" class="auth-overlay">
-    <div class="auth-card">
-        <h1 style="margin-bottom: 5px;">Life OS Pro</h1>
-        <p style="color: #666; margin-bottom: 30px;">จัดการชีวิตและการเงินในที่เดียว</p>
-        <input type="text" id="user-input" placeholder="ชื่อผู้ใช้งาน" style="width: 100%; margin-bottom: 15px;">
-        <input type="password" id="pass-input" placeholder="รหัสผ่าน" style="width: 100%; margin-bottom: 25px;">
-        <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="authAction()">เข้าสู่ระบบ / เริ่มต้นใช้งาน</button>
-    </div>
-</div>
-
-<!-- Main Application -->
-<div id="app-screen" class="app-container hidden">
-    <aside>
-        <div class="logo">🚀 <span>LifePlanner</span></div>
-        <div class="menu-item active" onclick="nav('dash')">📊 <span>Dashboard</span></div>
-        <div class="menu-item" onclick="nav('finance')">💰 <span>บัญชีรายรับ-จ่าย</span></div>
-        <div class="menu-item" onclick="nav('plan')">✅ <span>แผนงาน & To-Do</span></div>
-        <div class="menu-item" onclick="nav('report')">📈 <span>รายงานละเอียด</span></div>
-        
-        <button class="btn logout-btn" onclick="location.reload()">ออกจากระบบ</button>
-    </aside>
-
-    <main>
-        <!-- Section: Dashboard -->
-        <div id="page-dash" class="page">
-            <h2 style="margin-bottom: 30px;">ภาพรวมระบบวันนี้</h2>
-            <div class="grid-3">
-                <div class="stat-card bg-blue">
-                    <h3>ยอดเงินคงเหลือสุทธิ</h3>
-                    <h2 id="ds-balance">฿0.00</h2>
-                </div>
-                <div class="stat-card bg-green">
-                    <h3>รายรับ (เดือนนี้)</h3>
-                    <h2 id="ds-income">฿0.00</h2>
-                </div>
-                <div class="stat-card bg-pink">
-                    <h3>รายจ่าย (เดือนนี้)</h3>
-                    <h2 id="ds-expense">฿0.00</h2>
-                </div>
+    <!-- SECTION: AUTHENTICATION LAYER -->
+    <div id="auth-overlay">
+        <div class="auth-container animate-fade">
+            <div class="auth-logo"><i class="fas fa-rocket"></i></div>
+            <h1 style="font-weight: 700; font-size: 1.8rem;">LIFE OS PRO</h1>
+            <p style="color: var(--gray-1); margin-bottom: 30px;">ระบบจัดการชีวิตและการเงินระดับองค์กร</p>
+            
+            <div class="input-group">
+                <input type="text" id="auth-user" placeholder="ชื่อผู้ใช้งาน (Username)">
+            </div>
+            <div class="input-group">
+                <input type="password" id="auth-pass" placeholder="รหัสผ่าน (Password)">
             </div>
             
-            <div class="card">
-                <h3>แนวโน้มกระแสเงินสด (7 วันล่าสุด)</h3>
-                <canvas id="mainChart" height="100"></canvas>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="coreEngine.auth()">
+                <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ / สมัครสมาชิก
+            </button>
+            
+            <div style="margin-top: 25px; font-size: 0.85rem; color: var(--gray-2);">
+                <p><i class="fas fa-shield-alt"></i> ข้อมูลของคุณถูกเก็บไว้ในระดับ LocalStorage ส่วนตัว</p>
             </div>
         </div>
+    </div>
 
-        <!-- Section: Finance (Fixed!) -->
-        <div id="page-finance" class="page hidden">
-            <div class="card">
-                <h3>📝 บันทึกรายการใหม่</h3>
-                <div class="form-input-group">
-                    <input type="date" id="f-date" style="flex: 1.2;">
-                    <select id="f-type" style="flex: 1;">
-                        <option value="income">รายรับ (+)</option>
-                        <option value="expense">รายจ่าย (-)</option>
-                    </select>
-                    <input type="text" id="f-note" placeholder="บันทึกรายการ..." style="flex: 2;">
-                    <input type="number" id="f-amount" placeholder="จำนวนเงิน" style="flex: 1;">
-                    <button class="btn btn-primary" onclick="submitFinance()">บันทึกรายการ</button>
+    <!-- MAIN APP WRAPPER -->
+    <div id="main-app" class="hidden">
+        <!-- Sidebar Navigation will be in Part 2 --><!-- =========================================
+           PART 2: NAVIGATION & DASHBOARD STRUCTURE
+           ========================================= -->
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <aside id="sidebar" class="glass">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <div class="logo-box"><i class="fas fa-rocket"></i></div>
+                    <span class="sidebar-text">LIFE OS <small>PRO</small></span>
                 </div>
             </div>
 
-            <div class="card">
-                <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:20px;">
-                    <h3>รายการทั้งหมด</h3>
-                    <div style="display:flex; gap:10px;">
-                        <select id="filter-year" onchange="loadFinanceTable()"></select>
-                        <button class="btn" style="background:#eee;" onclick="exportCSV()">Export CSV</button>
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <p class="nav-label sidebar-text">Overview</p>
+                    <div class="nav-item active" onclick="app.switchTab('dash', this)">
+                        <div class="nav-icon-wrapper"><i class="fas fa-th-large"></i></div>
+                        <span class="sidebar-text">หน้าแดชบอร์ด</span>
+                    </div>
+                    <div class="nav-item" onclick="app.switchTab('finance', this)">
+                        <div class="nav-icon-wrapper"><i class="fas fa-wallet"></i></div>
+                        <span class="sidebar-text">บัญชีการเงิน</span>
+                    </div>
+                    <div class="nav-item" onclick="app.switchTab('planner', this)">
+                        <div class="nav-icon-wrapper"><i class="fas fa-calendar-check"></i></div>
+                        <span class="sidebar-text">แผนงานรายวัน</span>
                     </div>
                 </div>
-                <div class="table-wrap">
-                    <table>
+
+                <div class="nav-group">
+                    <p class="nav-label sidebar-text">Analytics</p>
+                    <div class="nav-item" onclick="app.switchTab('reports', this)">
+                        <div class="nav-icon-wrapper"><i class="fas fa-chart-pie"></i></div>
+                        <span class="sidebar-text">รายงานสถิติ</span>
+                    </div>
+                    <div class="nav-item" onclick="app.switchTab('goals', this)">
+                        <div class="nav-icon-wrapper"><i class="fas fa-bullseye"></i></div>
+                        <span class="sidebar-text">เป้าหมายชีวิต</span>
+                    </div>
+                </div>
+
+                <div class="nav-group logout-group">
+                    <div class="nav-item" onclick="coreEngine.logout()">
+                        <div class="nav-icon-wrapper"><i class="fas fa-sign-out-alt"></i></div>
+                        <span class="sidebar-text">ออกจากระบบ</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT WRAPPER -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <header class="top-bar flex-between glass">
+                <div class="bar-left flex-between">
+                    <button id="menu-btn" class="btn-icon mobile-only" onclick="ui.toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="current-tab-title">แดชบอร์ดสรุปผล</h2>
+                </div>
+                
+                <div class="bar-right flex-between">
+                    <div class="search-box desktop-only">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="ค้นหาข้อมูล...">
+                    </div>
+                    <div class="user-profile flex-between" onclick="ui.toggleUserMenu()">
+                        <div class="user-avatar">
+                            <img src="https://ui-avatars.com/api/?name=User&background=4361ee&color=fff" id="avatar-img">
+                        </div>
+                        <div class="user-name desktop-only">
+                            <span id="display-name">Loading...</span>
+                            <small>Premium Plan</small>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- PAGE CONTENT CONTAINER -->
+            <div id="content-area" class="page-container">
+                
+                <!-- TAB 1: DASHBOARD -->
+                <div id="tab-dash" class="tab-pane active animate-fade">
+                    <!-- Stat Highlights -->
+                    <div class="stats-grid">
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <div class="s-icon purple"><i class="fas fa-hand-holding-usd"></i></div>
+                                <span class="s-percent pos">+12% <i class="fas fa-caret-up"></i></span>
+                            </div>
+                            <div class="stat-body">
+                                <small>ยอดคงเหลือสุทธิ</small>
+                                <h1 id="dash-total-balance">฿0.00</h1>
+                            </div>
+                            <div class="stat-footer">
+                                <div class="progress-bar"><div class="progress" style="width: 70%"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <div class="s-icon green"><i class="fas fa-arrow-up"></i></div>
+                                <span class="s-percent pos">+5% <i class="fas fa-caret-up"></i></span>
+                            </div>
+                            <div class="stat-body">
+                                <small>รายรับเดือนนี้</small>
+                                <h1 id="dash-month-income">฿0.00</h1>
+                            </div>
+                            <div class="stat-footer">
+                                <span>เป้าหมาย: ฿50,000</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card glass-card">
+                            <div class="stat-header">
+                                <div class="s-icon red"><i class="fas fa-arrow-down"></i></div>
+                                <span class="s-percent neg">-2% <i class="fas fa-caret-down"></i></span>
+                            </div>
+                            <div class="stat-body">
+                                <small>รายจ่ายเดือนนี้</small>
+                                <h1 id="dash-month-expense">฿0.00</h1>
+                            </div>
+                            <div class="stat-footer">
+                                <span>คงเหลือโควต้า: ฿12,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Area -->
+                    <div class="main-grid">
+                        <div class="card chart-card">
+                            <div class="card-header flex-between">
+                                <h3><i class="fas fa-chart-line"></i> แนวโน้มการเงิน 7 วันล่าสุด</h3>
+                                <div class="card-actions">
+                                    <button class="btn-sm">สัปดาห์</button>
+                                    <button class="btn-sm active">เดือน</button>
+                                </div>
+                            </div>
+                            <div class="chart-wrapper">
+                                <canvas id="mainChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="card todo-mini-card">
+                            <div class="card-header flex-between">
+                                <h3><i class="fas fa-clipboard-list"></i> ภารกิจเร่งด่วน</h3>
+                                <button class="btn-text" onclick="app.switchTab('planner')">ดูทั้งหมด</button>
+                            </div>
+                            <div id="mini-todo-list" class="mini-list">
+                                <!-- JS will populate this -->
+                                <div class="empty-state">ไม่มีภารกิจค้าง</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: FINANCE (Placeholder) -->
+                <div id="tab-finance" class="tab-pane">
+                    <!-- จะไปใส่เต็มในพาร์ท 3 -->
+                </div>
+
+            </div> <!-- End content-area -->
+        </main>
+
+        <!-- CSS FOR PART 2 -->
+        <style>
+            .sidebar-header { padding: 25px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+            .logo-box { 
+                width: 40px; height: 40px; background: var(--primary); 
+                border-radius: 12px; display: flex; align-items: center; 
+                justify-content: center; color: white; font-size: 1.2rem;
+            }
+            .sidebar-text { font-weight: 600; font-size: 1.1rem; margin-left: 12px; }
+            .sidebar-text small { font-size: 0.6rem; background: #ffeaa7; color: #d63031; padding: 2px 6px; border-radius: 4px; vertical-align: middle; }
+
+            .sidebar-nav { padding: 15px; }
+            .nav-group { margin-bottom: 25px; }
+            .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--gray-2); margin: 0 0 10px 15px; }
+            
+            .nav-item {
+                display: flex; align-items: center; padding: 12px 15px; border-radius: 12px;
+                cursor: pointer; color: var(--gray-1); transition: var(--transition); margin-bottom: 4px;
+            }
+            .nav-icon-wrapper { width: 30px; font-size: 1.1rem; }
+            .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+            .nav-item.active { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(67, 97, 238, 0.25); }
+            
+            .main-content { margin-left: var(--sidebar-w); transition: var(--transition); min-height: 100vh; }
+            .top-bar { height: var(--nav-h); padding: 0 30px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.05); }
+            
+            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px; }
+            .stat-card { padding: 25px; border-radius: var(--radius-lg); position: relative; overflow: hidden; }
+            .s-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+            .s-icon.purple { background: #f0f3ff; color: #4361ee; }
+            .s-icon.green { background: #e8f8f0; color: #2ecc71; }
+            .s-icon.red { background: #fff0f3; color: #f72585; }
+            
+            .stat-body { margin: 15px 0; }
+            .stat-body h1 { font-size: 1.8rem; font-weight: 700; margin-top: 5px; }
+            .s-percent { font-size: 0.8rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+            .s-percent.pos { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
+            .s-percent.neg { background: rgba(247, 37, 133, 0.1); color: #f72585; }
+
+            .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+            .chart-wrapper { height: 300px; margin-top: 20px; }
+
+            @media (max-width: 1024px) {
+                :root { --sidebar-w: 0px; }
+                .main-content { margin-left: 0; }
+                #sidebar { transform: translateX(-100%); }
+                #sidebar.active { transform: translateX(0); width: 280px; }
+                .main-grid { grid-template-columns: 1fr; }
+            }
+        </style><!-- =========================================
+           PART 3: ADVANCED FINANCE ENGINE UI
+           ========================================= -->
+        
+        <!-- TAB 2: FINANCE MANAGEMENT -->
+        <div id="tab-finance" class="tab-pane animate-fade">
+            <div class="flex-between mb-4" style="margin-bottom: 25px;">
+                <div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600;">ศูนย์จัดการการเงิน</h3>
+                    <p style="color: var(--gray-1); font-size: 0.9rem;">บันทึกรายรับ-รายจ่าย และตรวจสอบงบประมาณคงเหลือ</p>
+                </div>
+                <div class="action-buttons flex-between" style="gap: 10px;">
+                    <button class="btn btn-outline desktop-only" onclick="financeEngine.exportData()">
+                        <i class="fas fa-file-export"></i> ส่งออก Excel
+                    </button>
+                    <button class="btn btn-primary" onclick="ui.openModal('modal-transaction')">
+                        <i class="fas fa-plus"></i> เพิ่มธุรกรรม
+                    </button>
+                </div>
+            </div>
+
+            <div class="finance-top-grid grid-3">
+                <!-- Budget Tracker Card -->
+                <div class="card glass-card budget-card">
+                    <div class="flex-between">
+                        <h4>งบประมาณรวม</h4>
+                        <button class="btn-icon-sm" onclick="ui.openModal('modal-budget')"><i class="fas fa-edit"></i></button>
+                    </div>
+                    <div class="budget-display">
+                        <span id="budget-used-text">ใช้ไปแล้ว ฿0</span>
+                        <h2 id="budget-limit-view">จาก ฿0</h2>
+                    </div>
+                    <div class="progress-container">
+                        <div id="budget-progress" class="progress-bar" style="width: 0%"></div>
+                    </div>
+                    <small id="budget-status">คุณยังไม่ได้ตั้งงบประมาณเดือนนี้</small>
+                </div>
+
+                <!-- Monthly Summary Cards -->
+                <div class="card glass-card info-card">
+                    <div class="flex-between">
+                        <small>รายรับสะสมเดือนนี้</small>
+                        <i class="fas fa-circle-check text-success"></i>
+                    </div>
+                    <h2 class="text-success" id="fin-total-income">฿0.00</h2>
+                    <p class="m-0"><i class="fas fa-arrow-up"></i> <span id="inc-growth">0%</span> จากเดือนก่อน</p>
+                </div>
+
+                <div class="card glass-card info-card">
+                    <div class="flex-between">
+                        <small>รายจ่ายสะสมเดือนนี้</small>
+                        <i class="fas fa-circle-exclamation text-danger"></i>
+                    </div>
+                    <h2 class="text-danger" id="fin-total-expense">฿0.00</h2>
+                    <p class="m-0"><i class="fas fa-arrow-down"></i> <span id="exp-growth">0%</span> จากเดือนก่อน</p>
+                </div>
+            </div>
+
+            <!-- Transaction Table Section -->
+            <div class="card table-card shadow-sm mt-4">
+                <div class="card-header flex-between">
+                    <div class="table-title">
+                        <i class="fas fa-history"></i> ประวัติธุรกรรม
+                    </div>
+                    <div class="table-filters flex-between">
+                        <div class="search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tx-search" placeholder="ค้นหาบันทึก..." onkeyup="financeEngine.filter()">
+                        </div>
+                        <select id="tx-filter-cat" onchange="financeEngine.filter()">
+                            <option value="all">ทุกหมวดหมู่</option>
+                            <option value="food">อาหาร & เครื่องดื่ม</option>
+                            <option value="travel">การเดินทาง</option>
+                            <option value="bills">ค่าน้ำ/ไฟ/บิล</option>
+                            <option value="shopping">ช้อปปิ้ง</option>
+                            <option value="health">สุขภาพ</option>
+                            <option value="work">รายได้/เงินเดือน</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="modern-table" id="transaction-table">
                         <thead>
                             <tr>
                                 <th>วันที่</th>
-                                <th>ประเภท</th>
-                                <th>รายละเอียด</th>
-                                <th>จำนวนเงิน</th>
-                                <th>จัดการ</th>
+                                <th>รายการบันทึก</th>
+                                <th>หมวดหมู่</th>
+                                <th class="text-right">จำนวนเงิน</th>
+                                <th class="text-center">สถานะ</th>
+                                <th class="text-center">เครื่องมือ</th>
                             </tr>
                         </thead>
-                        <tbody id="finance-tbody"></tbody>
+                        <tbody id="tx-tbody">
+                            <!-- JS จะดึงข้อมูลมาใส่ที่นี่ -->
+                        </tbody>
                     </table>
+                    <div id="tx-empty" class="empty-state-container">
+                        <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="No data">
+                        <p>ไม่พบรายการที่ต้องการค้นหา</p>
+                    </div>
+                </div>
+                <div class="table-footer flex-between">
+                    <div class="pagination">
+                        <button class="btn-page"><i class="fas fa-chevron-left"></i></button>
+                        <span id="page-num">หน้า 1 จาก 1</span>
+                        <button class="btn-page"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="total-summary">
+                        แสดงผล <span id="row-count">0</span> รายการ
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section: Planner (Tick box system) -->
-        <div id="page-plan" class="page hidden">
-            <div class="card">
-                <h3>🎯 แผนงานที่ต้องทำ</h3>
-                <div class="form-input-group">
-                    <input type="date" id="p-date" style="flex: 1;">
-                    <input type="text" id="p-task" placeholder="พิมพ์สิ่งที่จะทำ..." style="flex: 3;">
-                    <button class="btn btn-primary" onclick="submitPlan()">เพิ่มภารกิจ</button>
+        <!-- MODAL: ADD TRANSACTION -->
+        <div id="modal-transaction" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3><i class="fas fa-file-invoice-dollar"></i> บันทึกธุรกรรมใหม่</h3>
+                    <button class="btn-icon" onclick="ui.closeModal('modal-transaction')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="type-selector">
+                        <label class="type-btn">
+                            <input type="radio" name="tx-type" value="expense" checked>
+                            <div class="btn-content red"><i class="fas fa-minus-circle"></i> รายจ่าย</div>
+                        </label>
+                        <label class="type-btn">
+                            <input type="radio" name="tx-type" value="income">
+                            <div class="btn-content green"><i class="fas fa-plus-circle"></i> รายรับ</div>
+                        </label>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>วันที่</label>
+                            <input type="date" id="tx-date">
+                        </div>
+                        <div class="input-group">
+                            <label>จำนวนเงิน (บาท)</label>
+                            <input type="number" id="tx-amount" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>หมวดหมู่</label>
+                        <select id="tx-category">
+                            <option value="food">🍱 อาหาร & เครื่องดื่ม</option>
+                            <option value="travel">🚗 การเดินทาง</option>
+                            <option value="bills">🧾 ค่าน้ำ/ไฟ/บิล</option>
+                            <option value="shopping">🛍️ ช้อปปิ้ง</option>
+                            <option value="health">🏥 สุขภาพ/โรงพยาบาล</option>
+                            <option value="work">💰 รายได้/เงินเดือน</option>
+                            <option value="other">⚙️ อื่นๆ</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>บันทึกช่วยจำ</label>
+                        <textarea id="tx-note" rows="2" placeholder="ซื้อของที่ห้าง..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="ui.closeModal('modal-transaction')">ยกเลิก</button>
+                    <button class="btn btn-primary" onclick="financeEngine.saveTransaction()">
+                        <i class="fas fa-save"></i> บันทึกข้อมูล
+                    </button>
                 </div>
             </div>
-
-            <div id="todo-container">
-                <!-- รายการ To-do จะมาแสดงตรงนี้ -->
-            </div>
         </div>
+
+        <style>
+            /* PART 3: FINANCE ENGINE CSS */
+            .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+            .mb-4 { margin-bottom: 1.5rem; }
+            .mt-4 { margin-top: 1.5rem; }
+            .m-0 { margin: 0; }
+            
+            .budget-card { border-left: 5px solid var(--primary); }
+            .budget-display { margin: 15px 0; }
+            .budget-display h2 { font-size: 1.8rem; margin: 5px 0; color: var(--dark); }
+            
+            .progress-container { height: 8px; background: var(--gray-3); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+            .progress-bar { height: 100%; background: var(--primary); border-radius: 10px; transition: width 0.5s ease-in-out; }
+            
+            .info-card h2 { font-size: 2rem; font-weight: 700; margin: 10px 0; }
+            .info-card p { font-size: 0.85rem; color: var(--gray-1); }
+            .text-success { color: var(--success); }
+            .text-danger { color: var(--danger); }
+
+            /* Table Styles */
+            .modern-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .modern-table th { text-align: left; padding: 15px; background: var(--light); color: var(--gray-1); font-weight: 500; font-size: 0.85rem; }
+            .modern-table td { padding: 15px; border-bottom: 1px solid var(--gray-3); font-size: 0.95rem; }
+            .modern-table tr:hover { background: rgba(249, 249, 251, 0.7); }
+            
+            .text-right { text-align: right; }
+            .text-center { text-align: center; }
+
+            /* Modal CSS */
+            .modal-overlay {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 2000; display: flex;
+                justify-content: center; align-items: center; backdrop-filter: blur(4px);
+            }
+            .modal-card {
+                background: white; width: 95%; max-width: 500px; border-radius: var(--radius-lg);
+                padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            }
+            .type-selector { display: flex; gap: 15px; margin-bottom: 20px; }
+            .type-btn { flex: 1; cursor: pointer; }
+            .type-btn input { display: none; }
+            .btn-content { 
+                padding: 12px; border-radius: 12px; text-align: center; font-weight: 600;
+                border: 2px solid var(--gray-3); transition: var(--transition);
+            }
+            .type-btn input:checked + .btn-content.red { background: #fff0f3; border-color: var(--danger); color: var(--danger); }
+            .type-btn input:checked + .btn-content.green { background: #e8f8f0; border-color: var(--success); color: var(--success); }
+            
+            .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .empty-state-container { text-align: center; padding: 40px; display: none; }
+            .empty-state-container img { width: 80px; opacity: 0.2; margin-bottom: 15px; }
+
+            @media (max-width: 768px) {
+                .modern-table th:nth-child(3), .modern-table td:nth-child(3) { display: none; }
+                .form-grid { grid-template-columns: 1fr; }
+            }
+        </style><!-- =========================================
+           PART 4: SMART LIFE PLANNER & TASK ENGINE
+           ========================================= -->
         
-        <!-- Section: Report -->
-        <div id="page-report" class="page hidden">
-            <div class="card">
-                <h3>📊 รายงานวิเคราะห์</h3>
-                <p>ระบบกำลังรวบรวมข้อมูลเชิงลึกจากปี <span id="report-year"></span>...</p>
-                <div style="height: 300px; display: flex; align-items: center; justify-content: center; background: #f9f9f9; border-radius: 20px; color: #ccc;">
-                    กราฟวงกลมแยกหมวดหมู่ (จะพัฒนาต่อในเวอร์ชันถัดไป)
+        <!-- TAB 3: LIFE PLANNER -->
+        <div id="tab-planner" class="tab-pane animate-fade">
+            <div class="flex-between mb-4">
+                <div>
+                    <h3 style="font-size: 1.5rem; font-weight: 600;">ตัวจัดการแผนงาน</h3>
+                    <p style="color: var(--gray-1); font-size: 0.9rem;">จัดระเบียบชีวิตด้วยรายการที่ต้องทำและลำดับความสำคัญ</p>
+                </div>
+                <div class="planner-actions">
+                    <button class="btn btn-primary" onclick="ui.openModal('modal-task')">
+                        <i class="fas fa-calendar-plus"></i> เพิ่มภารกิจใหม่
+                    </button>
+                </div>
+            </div>
+
+            <div class="planner-grid">
+                <!-- Left Column: Task Lists -->
+                <div class="planner-main">
+                    <div class="card glass-card mb-4">
+                        <div class="flex-between mb-3">
+                            <h4 class="m-0"><i class="fas fa-clock text-primary"></i> ภารกิจวันนี้</h4>
+                            <span class="badge glass" id="task-count-today">0 รายการ</span>
+                        </div>
+                        <div id="planner-list-today" class="task-list">
+                            <!-- Tasks will be injected here -->
+                        </div>
+                    </div>
+
+                    <div class="card glass-card">
+                        <div class="flex-between mb-3">
+                            <h4 class="m-0"><i class="fas fa-forward text-warning"></i> แผนงานในอนาคต</h4>
+                        </div>
+                        <div id="planner-list-future" class="task-list">
+                            <!-- Future tasks will be injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Focus & Productivity -->
+                <div class="planner-side">
+                    <div class="card priority-card bg-dark text-white">
+                        <h4><i class="fas fa-fire text-danger"></i> High Priority</h4>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">ภารกิจที่ต้องจัดการทันที</p>
+                        <div id="priority-focus-area">
+                            <!-- High priority items -->
+                        </div>
+                    </div>
+
+                    <div class="card glass-card mt-4">
+                        <h4><i class="fas fa-trophy text-warning"></i> ความสำเร็จล่าสุด</h4>
+                        <div id="done-list-summary" class="mini-list">
+                            <!-- Recently completed tasks -->
+                        </div>
+                        <button class="btn btn-text btn-block mt-2" onclick="plannerEngine.clearDone()">
+                            ล้างประวัติที่ทำเสร็จแล้ว
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </main>
-</div>
 
-<script>
-    let currentUser = null;
-    let chartInstance = null;
+        <!-- MODAL: ADD TASK -->
+        <div id="modal-task" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3><i class="fas fa-tasks"></i> สร้างภารกิจใหม่</h3>
+                    <button class="btn-icon" onclick="ui.closeModal('modal-task')"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label>หัวข้อภารกิจ</label>
+                        <input type="text" id="task-title" placeholder="เช่น ส่งรายงานการประชุม, ซื้อของเข้าบ้าน">
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>วันที่ดำเนินการ</label>
+                            <input type="date" id="task-date">
+                        </div>
+                        <div class="input-group">
+                            <label>ระดับความสำคัญ</label>
+                            <select id="task-priority">
+                                <option value="low">🟡 ปกติ (Low)</option>
+                                <option value="medium">🟠 ปานกลาง (Medium)</option>
+                                <option value="high">🔴 เร่งด่วน (High)</option>
+                            </select>
+                        </div>
+                    </div>
 
-    // --- Core Database Logic ---
-    const DB = {
-        fetch: () => {
-            const data = JSON.parse(localStorage.getItem('LIFE_OS_DB')) || {};
-            return data[currentUser] || { finance: [], plans: [] };
-        },
-        save: (userData) => {
-            const data = JSON.parse(localStorage.getItem('LIFE_OS_DB')) || {};
-            data[currentUser] = userData;
-            localStorage.setItem('LIFE_OS_DB', JSON.stringify(data));
-        }
-    };
+                    <div class="input-group">
+                        <label>รายละเอียดเพิ่มเติม (Optional)</label>
+                        <textarea id="task-desc" rows="3" placeholder="ระบุรายละเอียดคร่าวๆ..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="ui.closeModal('modal-task')">ยกเลิก</button>
+                    <button class="btn btn-primary" onclick="plannerEngine.saveTask()">
+                        <i class="fas fa-check-circle"></i> ยืนยันการเพิ่ม
+                    </button>
+                </div>
+            </div>
+        </div>
 
-    // --- Authentication ---
-    function authAction() {
-        const u = document.getElementById('user-input').value.trim();
-        const p = document.getElementById('pass-input').value.trim();
-        if(!u || !p) return alert("กรุณากรอกข้อมูลให้ครบ");
+        <style>
+            /* PART 4: PLANNER CSS */
+            .planner-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+            
+            .task-list { min-height: 50px; }
+            .task-item {
+                display: flex; align-items: flex-start; padding: 15px;
+                background: var(--white); border-radius: var(--radius-md);
+                margin-bottom: 12px; transition: var(--transition);
+                border: 1px solid var(--gray-3);
+            }
+            .task-item:hover { transform: translateX(5px); box-shadow: var(--shadow); }
+            
+            .task-check {
+                width: 24px; height: 24px; border-radius: 50%;
+                border: 2px solid var(--primary); margin-right: 15px;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                flex-shrink: 0; margin-top: 2px;
+            }
+            .task-check.done { background: var(--success); border-color: var(--success); color: white; }
+            
+            .task-content { flex: 1; }
+            .task-content h5 { margin: 0; font-size: 1rem; color: var(--dark); }
+            .task-content p { margin: 3px 0 0; font-size: 0.8rem; color: var(--gray-1); }
+            .task-item.completed h5 { text-decoration: line-through; color: var(--gray-2); }
+            
+            .priority-tag { font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 8px; }
+            .tag-high { background: #ffe3e3; color: #f72585; }
+            .tag-medium { background: #fff4e5; color: #f39c12; }
+            .tag-low { background: #e8f8f0; color: #2ecc71; }
 
-        let data = JSON.parse(localStorage.getItem('LIFE_OS_DB')) || {};
-        if(!data[u]) {
-            data[u] = { password: p, finance: [], plans: [] };
-            localStorage.setItem('LIFE_OS_DB', JSON.stringify(data));
-        }
+            .priority-card { background: #1e1e2d; border: none; }
+            .bg-dark { background: #1e1e2d !important; }
+            
+            .btn-block { width: 100%; display: block; }
+            .btn-text { background: transparent; color: var(--primary); border: none; font-size: 0.85rem; cursor: pointer; }
 
-        if(data[u].password === p) {
-            currentUser = u;
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            initApp();
-        } else {
-            alert("รหัสผ่านไม่ถูกต้อง");
-        }
-    }
+            @media (max-width: 992px) {
+                .planner-grid { grid-template-columns: 1fr; }
+                .planner-side { order: -1; } /* โชว์ High Priority ก่อนในมือถือ */
+            }
+        </style>/* =========================================
+           PART 5: CORE ENGINE (JAVASCRIPT LOGIC)
+           ========================================= */
+        
+        const coreEngine = {
+            db: null,
+            user: null,
 
-    // --- App Navigation ---
-    function nav(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-        document.getElementById('page-' + pageId).classList.remove('hidden');
-        event.currentTarget.classList.add('active');
-        if(pageId === 'dash') updateDash();
-        if(pageId === 'finance') loadFinanceTable();
-        if(pageId === 'plan') loadPlanList();
-    }
+            init() {
+                this.db = JSON.parse(localStorage.getItem('ULTIMATE_OS_DB')) || {};
+                const session = sessionStorage.getItem('OS_SESSION');
+                if (session) this.loadApp(session);
+            },
 
-    // --- Initialization ---
-    function initApp() {
-        const yearSelect = document.getElementById('filter-year');
-        const currYear = new Date().getFullYear();
-        for(let y = currYear; y > currYear - 5; y--) {
-            yearSelect.innerHTML += `<option value="${y}">ปี ${y+543}</option>`;
-        }
-        document.getElementById('f-date').valueAsDate = new Date();
-        document.getElementById('p-date').valueAsDate = new Date();
-        initChart();
-        updateDash();
-    }
+            auth() {
+                const u = document.getElementById('auth-user').value.trim();
+                const p = document.getElementById('auth-pass').value.trim();
+                if (!u || !p) return alert("กรุณาระบุชื่อและรหัสผ่าน");
 
-    // --- Finance Logic ---
-    function submitFinance() {
-        const date = document.getElementById('f-date').value;
-        const type = document.getElementById('f-type').value;
-        const note = document.getElementById('f-note').value;
-        const amount = parseFloat(document.getElementById('f-amount').value);
+                if (!this.db[u]) {
+                    this.db[u] = { password: p, finance: [], plans: [], budget: 0 };
+                    this.saveDB();
+                }
 
-        if(!date || !note || isNaN(amount)) return alert("ข้อมูลไม่ครบถ้วน");
+                if (this.db[u].password === p) {
+                    sessionStorage.setItem('OS_SESSION', u);
+                    this.loadApp(u);
+                } else {
+                    alert("รหัสผ่านไม่ถูกต้อง");
+                }
+            },
 
-        const userObj = DB.fetch();
-        const entry = {
-            id: Date.now(),
-            date,
-            type,
-            note,
-            amount: type === 'income' ? amount : -Math.abs(amount)
+            loadApp(username) {
+                this.user = username;
+                document.getElementById('auth-overlay').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('display-name').innerText = username;
+                document.getElementById('user-info').innerHTML = `<i class="fas fa-user-circle"></i> ${username}`;
+                
+                app.init();
+                financeEngine.render();
+                plannerEngine.render();
+                ui.updateDashboard();
+            },
+
+            saveDB() {
+                localStorage.setItem('ULTIMATE_OS_DB', JSON.stringify(this.db));
+            },
+
+            logout() {
+                sessionStorage.clear();
+                location.reload();
+            }
         };
 
-        userObj.finance.push(entry);
-        DB.save(userObj);
-        
-        // Reset form
-        document.getElementById('f-note').value = '';
-        document.getElementById('f-amount').value = '';
-        loadFinanceTable();
-        alert("บันทึกเรียบร้อย!");
-    }
+        const app = {
+            currentTab: 'dash',
+            chart: null,
 
-    function loadFinanceTable() {
-        const userObj = DB.fetch();
-        const filterYear = document.getElementById('filter-year').value;
-        const tbody = document.getElementById('finance-tbody');
-        tbody.innerHTML = '';
-
-        const filtered = userObj.finance.filter(f => f.date.startsWith(filterYear))
-                        .sort((a,b) => new Date(b.date) - new Date(a.date));
-
-        filtered.forEach(item => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${new Date(item.date).toLocaleDateString('th-TH')}</td>
-                    <td><span class="tag ${item.amount > 0 ? 'tag-income' : 'tag-expense'}">${item.type === 'income' ? 'รายรับ' : 'รายจ่าย'}</span></td>
-                    <td>${item.note}</td>
-                    <td style="font-weight: 600; color: ${item.amount > 0 ? '#2ecc71' : '#f72585'}">
-                        ${item.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}
-                    </td>
-                    <td><button onclick="deleteFin(${item.id})" style="border:none; background:none; cursor:pointer;">🗑️</button></td>
-                </tr>
-            `;
-        });
-    }
-
-    function deleteFin(id) {
-        if(!confirm("ลบรายการนี้ใช่หรือไม่?")) return;
-        const userObj = DB.fetch();
-        userObj.finance = userObj.finance.filter(f => f.id !== id);
-        DB.save(userObj);
-        loadFinanceTable();
-    }
-
-    // --- Planner (Checking) Logic ---
-    function submitPlan() {
-        const date = document.getElementById('p-date').value;
-        const task = document.getElementById('p-task').value;
-        if(!date || !task) return alert("กรุณากรอกแผนงาน");
-
-        const userObj = DB.fetch();
-        userObj.plans.push({ id: Date.now(), date, task, done: false });
-        DB.save(userObj);
-        
-        document.getElementById('p-task').value = '';
-        loadPlanList();
-    }
-
-    function loadPlanList() {
-        const userObj = DB.fetch();
-        const container = document.getElementById('todo-container');
-        container.innerHTML = '';
-
-        userObj.plans.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
-            container.innerHTML += `
-                <div class="todo-item ${p.done ? 'completed' : ''}">
-                    <div class="check-btn ${p.done ? 'checked' : ''}" onclick="togglePlan(${p.id})">
-                        ${p.done ? '✓' : ''}
-                    </div>
-                    <div class="task-text">${p.task}</div>
-                    <div class="task-date">${new Date(p.date).toLocaleDateString('th-TH')}</div>
-                    <button onclick="deletePlan(${p.id})" style="border:none; background:none; cursor:pointer;">❌</button>
-                </div>
-            `;
-        });
-    }
-
-    function togglePlan(id) {
-        const userObj = DB.fetch();
-        const plan = userObj.plans.find(p => p.id === id);
-        if(plan) plan.done = !plan.done;
-        DB.save(userObj);
-        loadPlanList();
-    }
-
-    function deletePlan(id) {
-        const userObj = DB.fetch();
-        userObj.plans = userObj.plans.filter(p => p.id !== id);
-        DB.save(userObj);
-        loadPlanList();
-    }
-
-    // --- Dashboard & Chart ---
-    function updateDash() {
-        const { finance } = DB.fetch();
-        const now = new Date();
-        let total = 0, incM = 0, expM = 0;
-
-        finance.forEach(f => {
-            total += f.amount;
-            const d = new Date(f.date);
-            if(d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-                if(f.amount > 0) incM += f.amount;
-                else expM += f.amount;
-            }
-        });
-
-        document.getElementById('ds-balance').innerText = `฿${total.toLocaleString()}`;
-        document.getElementById('ds-income').innerText = `฿${incM.toLocaleString()}`;
-        document.getElementById('ds-expense').innerText = `฿${Math.abs(expM).toLocaleString()}`;
-        
-        updateChartData(finance);
-    }
-
-    function initChart() {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: { 
-                labels: [], 
-                datasets: [{ 
-                    label: 'ยอดเงินสะสม', 
-                    data: [], 
-                    borderColor: '#4361ee', 
-                    backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                    fill: true, tension: 0.4 
-                }] 
+            init() {
+                this.initChart();
+                // Set default dates
+                document.getElementById('tx-date').valueAsDate = new Date();
+                document.getElementById('task-date').valueAsDate = new Date();
             },
-            options: { responsive: true, plugins: { legend: { display: false } } }
-        });
-    }
 
-    function updateChartData(finance) {
-        const labels = [];
-        const dataPoints = [];
-        for(let i=6; i>=0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            labels.push(d.toLocaleDateString('th-TH', {day:'numeric', month:'short'}));
-            
-            const dayBalance = finance.filter(f => f.date <= dateStr).reduce((s, f) => s + f.amount, 0);
-            dataPoints.push(dayBalance);
-        }
-        chartInstance.data.labels = labels;
-        chartInstance.data.datasets[0].data = dataPoints;
-        chartInstance.update();
-    }
+            switchTab(tabId, el) {
+                this.currentTab = tabId;
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                
+                document.getElementById('tab-' + tabId).classList.add('active');
+                if(el) el.classList.add('active');
+                
+                document.getElementById('current-tab-title').innerText = 
+                    tabId === 'dash' ? 'แดชบอร์ดสรุปผล' : 
+                    tabId === 'finance' ? 'บัญชีการเงิน' : 'แผนงานรายวัน';
+                
+                if(tabId === 'dash') this.updateChart();
+            },
 
-    function exportCSV() {
-        const { finance } = DB.fetch();
-        let content = "Date,Type,Note,Amount\n";
-        finance.forEach(f => content += `${f.date},${f.type},${f.note},${f.amount}\n`);
-        const blob = new Blob([content], { type: 'text/csv' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `finance_report_${Date.now()}.csv`;
-        a.click();
-    }
-</script>
+            initChart() {
+                const ctx = document.getElementById('mainChart').getContext('2d');
+                this.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'กระแสเงินสด',
+                            data: [],
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            },
+
+            updateChart() {
+                const data = coreEngine.db[coreEngine.user].finance;
+                const labels = [];
+                const points = [];
+                for(let i=6; i>=0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    const ds = d.toISOString().split('T')[0];
+                    labels.push(d.toLocaleDateString('th-TH', {day:'numeric', month:'short'}));
+                    const bal = data.filter(f => f.date <= ds).reduce((s, f) => s + (f.type === 'income' ? f.amount : -f.amount), 0);
+                    points.push(bal);
+                }
+                this.chart.data.labels = labels;
+                this.chart.data.datasets[0].data = points;
+                this.chart.update();
+            }
+        };
+
+        const financeEngine = {
+            saveTransaction() {
+                const type = document.querySelector('input[name="tx-type"]:checked').value;
+                const amount = parseFloat(document.getElementById('tx-amount').value);
+                const category = document.getElementById('tx-category').value;
+                const note = document.getElementById('tx-note').value;
+                const date = document.getElementById('tx-date').value;
+
+                if(!amount || !note) return alert("กรุณากรอกข้อมูลให้ครบ");
+
+                coreEngine.db[coreEngine.user].finance.push({
+                    id: Date.now(), type, amount, category, note, date
+                });
+                coreEngine.saveDB();
+                ui.closeModal('modal-transaction');
+                this.render();
+                ui.updateDashboard();
+            },
+
+            render() {
+                const list = coreEngine.db[coreEngine.user].finance;
+                const tbody = document.getElementById('tx-tbody');
+                tbody.innerHTML = '';
+                
+                list.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(item.date).toLocaleDateString('th-TH')}</td>
+                        <td>${item.note}</td>
+                        <td><span class="badge glass">${item.category}</span></td>
+                        <td class="text-right ${item.type === 'income' ? 'text-success' : 'text-danger'}">
+                            ${item.type === 'income' ? '+' : '-'}${item.amount.toLocaleString()}
+                        </td>
+                        <td class="text-center"><i class="fas fa-check-circle text-success"></i></td>
+                        <td class="text-center">
+                            <button class="btn-icon-sm" onclick="financeEngine.delete(${item.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
+
+            delete(id) {
+                if(!confirm("ยืนยันการลบรายการนี้?")) return;
+                coreEngine.db[coreEngine.user].finance = coreEngine.db[coreEngine.user].finance.filter(f => f.id !== id);
+                coreEngine.saveDB();
+                this.render();
+                ui.updateDashboard();
+            }
+        };
+
+        const plannerEngine = {
+            saveTask() {
+                const title = document.getElementById('task-title').value;
+                const date = document.getElementById('task-date').value;
+                const priority = document.getElementById('task-priority').value;
+                const desc = document.getElementById('task-desc').value;
+
+                if(!title || !date) return alert("กรุณาระบุหัวข้อและวันที่");
+
+                coreEngine.db[coreEngine.user].plans.push({
+                    id: Date.now(), title, date, priority, desc, done: false
+                });
+                coreEngine.saveDB();
+                ui.closeModal('modal-task');
+                this.render();
+            },
+
+            render() {
+                const plans = coreEngine.db[coreEngine.user].plans;
+                const todayList = document.getElementById('planner-list-today');
+                const futureList = document.getElementById('planner-list-future');
+                const today = new Date().toISOString().split('T')[0];
+
+                todayList.innerHTML = ''; futureList.innerHTML = '';
+                
+                plans.forEach(plan => {
+                    const item = document.createElement('div');
+                    item.className = `task-item ${plan.done ? 'completed' : ''}`;
+                    item.innerHTML = `
+                        <div class="task-check ${plan.done ? 'done' : ''}" onclick="plannerEngine.toggle(${plan.id})">
+                            ${plan.done ? '✓' : ''}
+                        </div>
+                        <div class="task-content">
+                            <h5>${plan.title} <span class="priority-tag tag-${plan.priority}">${plan.priority}</span></h5>
+                            <p>${plan.desc || 'ไม่มีรายละเอียด'}</p>
+                        </div>
+                        <button class="btn-text" onclick="plannerEngine.delete(${plan.id})"><i class="fas fa-times"></i></button>
+                    `;
+                    if(plan.date === today) todayList.appendChild(item);
+                    else futureList.appendChild(item);
+                });
+                document.getElementById('task-count-today').innerText = todayList.children.length + " รายการ";
+            },
+
+            toggle(id) {
+                const plan = coreEngine.db[coreEngine.user].plans.find(p => p.id === id);
+                if(plan) plan.done = !plan.done;
+                coreEngine.saveDB();
+                this.render();
+            },
+
+            delete(id) {
+                coreEngine.db[coreEngine.user].plans = coreEngine.db[coreEngine.user].plans.filter(p => p.id !== id);
+                coreEngine.saveDB();
+                this.render();
+            }
+        };
+
+        const ui = {
+            openModal(id) { document.getElementById(id).classList.remove('hidden'); },
+            closeModal(id) { document.getElementById(id).classList.add('hidden'); },
+            toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); },
+
+            updateDashboard() {
+                const data = coreEngine.db[coreEngine.user].finance;
+                let inc = 0, exp = 0;
+                data.forEach(f => {
+                    if(f.type === 'income') inc += f.amount;
+                    else exp += f.amount;
+                });
+
+                document.getElementById('dash-total-balance').innerText = `฿${(inc - exp).toLocaleString()}`;
+                document.getElementById('dash-month-income').innerText = `฿${inc.toLocaleString()}`;
+                document.getElementById('dash-month-expense').innerText = `฿${exp.toLocaleString()}`;
+                
+                document.getElementById('fin-total-income').innerText = `฿${inc.toLocaleString()}`;
+                document.getElementById('fin-total-expense').innerText = `฿${exp.toLocaleString()}`;
+                document.getElementById('ds-net-worth').innerText = `฿${(inc - exp).toLocaleString()}`;
+                
+                app.updateChart();
+            }
+        };
+
+        // Start the Application
+        window.onload = () => coreEngine.init();
+    </script>
 </body>
 </html>
