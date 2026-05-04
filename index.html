@@ -3,161 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>บันทึกรายรับรายจ่ายสุดมินิมอล</title>
+    <title>All-in-One: Finance & Schedule</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6c5ce7;
+            --secondary: #a29bfe;
             --success: #00b894;
             --danger: #d63031;
-            --bg: #f0f2f5;
+            --bg: #f8f9fa;
+            --dark: #2d3436;
         }
 
         body {
             font-family: 'Kanit', sans-serif;
             background-color: var(--bg);
+            margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            margin: 0;
         }
 
         .container {
             background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 450px;
+            max-width: 500px;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
-        h2 { text-align: center; color: #2d3436; }
-
-        /* Auth Styles */
+        /* --- Auth Section --- */
+        .auth-container { padding: 40px 20px; text-align: center; }
         .auth-box input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
+            width: 100%; padding: 12px; margin: 10px 0;
+            border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box;
         }
 
-        /* Tracker Styles */
-        .balance-card {
+        /* --- Header & Nav --- */
+        header {
             background: var(--primary);
             color: white;
             padding: 20px;
-            border-radius: 12px;
             text-align: center;
-            margin-bottom: 20px;
+            border-radius: 0 0 20px 20px;
         }
 
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stat-box {
+        nav {
+            display: flex;
+            background: white;
             padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            color: white;
+            justify-content: border-around;
+            border-bottom: 1px solid #eee;
         }
 
-        .income-box { background: var(--success); }
-        .expense-box { background: var(--danger); }
-
-        .form-group { margin-bottom: 15px; }
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            font-family: 'Kanit';
-        }
-
-        button {
-            background: var(--primary);
-            color: white;
+        nav button {
+            flex: 1;
+            background: none;
             border: none;
-            cursor: pointer;
+            padding: 10px;
+            font-family: 'Kanit';
             font-weight: 600;
+            color: #ccc;
+            cursor: pointer;
             transition: 0.3s;
         }
 
-        button:hover { opacity: 0.9; }
+        nav button.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
 
-        .history {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 20px;
+        /* --- Content Area --- */
+        .content { padding: 20px; flex: 1; }
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* --- Finance Styles --- */
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px;
         }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { padding: 15px; border-radius: 12px; color: white; text-align: center; }
 
-        .item {
-            display: flex;
-            justify-content: space-between;
-            background: #fff;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            border-left: 5px solid #ccc;
+        /* --- Schedule Styles --- */
+        .schedule-item {
+            display: flex; align-items: center;
+            background: #fff; padding: 15px; border-radius: 12px;
+            margin-bottom: 10px; border-left: 5px solid var(--secondary);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
+        .time-tag { background: #eee; padding: 2px 8px; border-radius: 5px; font-size: 0.8rem; margin-right: 15px; }
 
-        .item.plus { border-left-color: var(--success); }
-        .item.minus { border-left-color: var(--danger); }
-
+        /* --- Common Elements --- */
+        input, select, .btn-main {
+            width: 100%; padding: 12px; margin-top: 10px;
+            border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box;
+            font-family: 'Kanit';
+        }
+        .btn-main { background: var(--primary); color: white; border: none; font-weight: 600; cursor: pointer; }
+        .btn-logout { background: #b2bec3; margin-top: 30px; }
+        .list-container { margin-top: 20px; max-height: 300px; overflow-y: auto; }
+        .item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; }
+        .plus { color: var(--success); }
+        .minus { color: var(--danger); }
         .hidden { display: none; }
-        .logout-btn { background: #636e72; margin-top: 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Section: Login/Register -->
-    <div id="auth-section" class="auth-box">
+    <!-- หน้าล็อคอิน -->
+    <div id="auth-section" class="auth-container">
         <h2 id="auth-title">เข้าสู่ระบบ</h2>
-        <input type="text" id="username" placeholder="ชื่อผู้ใช้งาน">
-        <input type="password" id="password" placeholder="รหัสผ่าน">
-        <button onclick="handleAuth()" id="main-auth-btn">ตกลง</button>
-        <p style="text-align:center; font-size: 0.9rem;">
-            <a href="#" onclick="toggleAuthMode()" id="toggle-link">ยังไม่มีบัญชี? สมัครสมาชิก</a>
-        </p>
+        <div class="auth-box">
+            <input type="text" id="username" placeholder="ชื่อผู้ใช้งาน">
+            <input type="password" id="password" placeholder="รหัสผ่าน">
+            <button class="btn-main" onclick="handleAuth()">ตกลง</button>
+            <p onclick="toggleAuthMode()" style="cursor:pointer; color: var(--primary); font-size: 0.9rem; margin-top: 15px;">
+                <span id="toggle-text">ยังไม่มีบัญชี? สมัครสมาชิก</span>
+            </p>
+        </div>
     </div>
 
-    <!-- Section: Main App -->
+    <!-- ส่วนของแอปพลิเคชัน -->
     <div id="app-section" class="hidden">
-        <h2>สวัสดี, <span id="user-display"></span></h2>
-        
-        <div class="balance-card">
-            <small>ยอดคงเหลือสุทธิ</small>
-            <h1 id="balance">฿0.00</h1>
-        </div>
+        <header>
+            <h3 style="margin:0">ยินดีต้อนรับ, <span id="user-display"></span></h3>
+        </header>
 
-        <div class="stats">
-            <div class="stat-box income-box">
-                <small>รายรับ</small>
-                <div id="money-plus">฿0.00</div>
+        <nav>
+            <button id="nav-finance" class="active" onclick="showPage('finance')">รายรับ-รายจ่าย</button>
+            <button id="nav-schedule" onclick="showPage('schedule')">ตารางเวลา</button>
+        </nav>
+
+        <div class="content">
+            <!-- หน้า: รายรับรายจ่าย -->
+            <div id="page-finance" class="page active">
+                <div class="balance-card">
+                    <small>เงินคงเหลือทั้งหมด</small>
+                    <h1 id="balance" style="margin:5px 0">฿0.00</h1>
+                </div>
+                <div class="stats">
+                    <div class="stat-box" style="background: var(--success);">
+                        <small>รายรับ</small><br><strong id="money-plus">฿0</strong>
+                    </div>
+                    <div class="stat-box" style="background: var(--danger);">
+                        <small>รายจ่าย</small><br><strong id="money-minus">฿0</strong>
+                    </div>
+                </div>
+                <input type="text" id="fin-text" placeholder="ชื่อรายการ">
+                <input type="number" id="fin-amount" placeholder="จำนวนเงิน (ติดลบคือรายจ่าย)">
+                <button class="btn-main" onclick="addTransaction()">บันทึกรายการ</button>
+                <div id="fin-list" class="list-container"></div>
             </div>
-            <div class="stat-box expense-box">
-                <small>รายจ่าย</small>
-                <div id="money-minus">฿0.00</div>
+
+            <!-- หน้า: ตารางเวลา -->
+            <div id="page-schedule" class="page">
+                <h3 style="margin-top:0">📅 วางแผนวันนี้</h3>
+                <input type="time" id="sched-time">
+                <input type="text" id="sched-task" placeholder="สิ่งที่ต้องทำ...">
+                <button class="btn-main" style="background: var(--secondary);" onclick="addSchedule()">เพิ่มตารางเวลา</button>
+                
+                <div id="sched-list" class="list-container" style="margin-top: 20px;">
+                    <!-- ตารางเวลาจะปรากฏตรงนี้ -->
+                </div>
             </div>
+
+            <button class="btn-main btn-logout" onclick="logout()">ออกจากระบบ</button>
         </div>
-
-        <div class="form-group">
-            <input type="text" id="text" placeholder="ชื่อรายการ (เช่น เงินเดือน, ค่าข้าว)">
-            <input type="number" id="amount" placeholder="จำนวนเงิน (ใส่ - หน้าตัวเลขเพื่อเป็นรายจ่าย)">
-            <button onclick="addTransaction()">เพิ่มรายการ</button>
-        </div>
-
-        <h3>ประวัติรายการ</h3>
-        <div id="list" class="history"></div>
-
-        <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 </div>
 
@@ -165,31 +179,38 @@
     let isLoginMode = true;
     let currentUser = null;
 
+    // --- ส่วนจัดการหน้าจอ (Navigation) ---
+    function showPage(pageName) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(`page-${pageName}`).classList.add('active');
+        document.getElementById(`nav-${pageName}`).classList.add('active');
+    }
+
     // --- ระบบสมาชิก ---
     function toggleAuthMode() {
         isLoginMode = !isLoginMode;
         document.getElementById('auth-title').innerText = isLoginMode ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
-        document.getElementById('toggle-link').innerText = isLoginMode ? 'ยังไม่มีบัญชี? สมัครสมาชิก' : 'มีบัญชีแล้ว? เข้าสู่ระบบ';
+        document.getElementById('toggle-text').innerText = isLoginMode ? 'ยังไม่มีบัญชี? สมัครสมาชิก' : 'มีบัญชีแล้ว? เข้าสู่ระบบ';
     }
 
     function handleAuth() {
         const user = document.getElementById('username').value;
         const pass = document.getElementById('password').value;
-        const users = JSON.parse(localStorage.getItem('users')) || {};
+        const users = JSON.parse(localStorage.getItem('myAppUsers')) || {};
 
-        if (!user || !pass) return alert('กรุณากรอกข้อมูลให้ครบ');
+        if (!user || !pass) return alert('กรุณากรอกให้ครบ');
 
         if (isLoginMode) {
             if (users[user] && users[user].password === pass) {
                 login(user);
-            } else {
-                alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-            }
+            } else { alert('ข้อมูลไม่ถูกต้อง'); }
         } else {
-            if (users[user]) return alert('ชื่อนี้มีผู้ใช้แล้ว');
-            users[user] = { password: pass, transactions: [] };
-            localStorage.setItem('users', JSON.stringify(users));
-            alert('สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
+            if (users[user]) return alert('ชื่อนี้ถูกใช้ไปแล้ว');
+            users[user] = { password: pass, transactions: [], schedules: [] };
+            localStorage.setItem('myAppUsers', JSON.stringify(users));
+            alert('สมัครสำเร็จ! เข้าระบบได้เลย');
             toggleAuthMode();
         }
     }
@@ -199,64 +220,80 @@
         document.getElementById('auth-section').classList.add('hidden');
         document.getElementById('app-section').classList.remove('hidden');
         document.getElementById('user-display').innerText = username;
-        updateUI();
+        updateFinanceUI();
+        updateScheduleUI();
     }
 
-    function logout() {
-        currentUser = null;
-        document.getElementById('auth-section').classList.remove('hidden');
-        document.getElementById('app-section').classList.add('hidden');
-    }
+    function logout() { location.reload(); }
 
     // --- ระบบรายรับรายจ่าย ---
     function addTransaction() {
-        const text = document.getElementById('text').value;
-        const amount = document.getElementById('amount').value;
+        const text = document.getElementById('fin-text').value;
+        const amount = document.getElementById('fin-amount').value;
+        if (!text || !amount) return;
 
-        if (text.trim() === '' || amount.trim() === '') return alert('กรุณากรอกข้อมูล');
-
-        const transaction = {
-            id: Date.now(),
-            text: text,
-            amount: +amount
-        };
-
-        const users = JSON.parse(localStorage.getItem('users'));
-        users[currentUser].transactions.push(transaction);
-        localStorage.setItem('users', JSON.stringify(users));
-
-        document.getElementById('text').value = '';
-        document.getElementById('amount').value = '';
-        updateUI();
+        const users = JSON.parse(localStorage.getItem('myAppUsers'));
+        users[currentUser].transactions.push({ text, amount: +amount });
+        localStorage.setItem('myAppUsers', JSON.stringify(users));
+        
+        document.getElementById('fin-text').value = '';
+        document.getElementById('fin-amount').value = '';
+        updateFinanceUI();
     }
 
-    function updateUI() {
-        const users = JSON.parse(localStorage.getItem('users'));
-        const transactions = users[currentUser].transactions;
-
-        const list = document.getElementById('list');
+    function updateFinanceUI() {
+        const users = JSON.parse(localStorage.getItem('myAppUsers'));
+        const data = users[currentUser].transactions;
+        const list = document.getElementById('fin-list');
         list.innerHTML = '';
 
-        const amounts = transactions.map(t => t.amount);
-        const total = amounts.reduce((acc, item) => (acc += item), 0).toFixed(2);
-        const income = amounts.filter(item => item > 0).reduce((acc, item) => (acc += item), 0).toFixed(2);
-        const expense = (amounts.filter(item => item < 0).reduce((acc, item) => (acc += item), 0) * -1).toFixed(2);
+        let total = 0, inc = 0, exp = 0;
+        data.forEach(t => {
+            total += t.amount;
+            if(t.amount > 0) inc += t.amount; else exp += t.amount;
+            
+            list.innerHTML += `
+                <div class="item">
+                    <span>${t.text}</span>
+                    <span class="${t.amount > 0 ? 'plus' : 'minus'}">${t.amount > 0 ? '+' : ''}${t.amount}</span>
+                </div>`;
+        });
 
-        document.getElementById('balance').innerText = `฿${total}`;
-        document.getElementById('money-plus').innerText = `฿${income}`;
-        document.getElementById('money-minus').innerText = `฿${expense}`;
+        document.getElementById('balance').innerText = `฿${total.toLocaleString()}`;
+        document.getElementById('money-plus').innerText = `฿${inc.toLocaleString()}`;
+        document.getElementById('money-minus').innerText = `฿${Math.abs(exp).toLocaleString()}`;
+    }
 
-        transactions.forEach(t => {
-            const sign = t.amount < 0 ? '-' : '+';
-            const item = document.createElement('div');
-            item.classList.add('item', t.amount < 0 ? 'minus' : 'plus');
-            item.innerHTML = `
-                ${t.text} <span>${sign}${Math.abs(t.amount)}</span>
-            `;
-            list.appendChild(item);
+    // --- ระบบตารางเวลา ---
+    function addSchedule() {
+        const time = document.getElementById('sched-time').value;
+        const task = document.getElementById('sched-task').value;
+        if (!time || !task) return;
+
+        const users = JSON.parse(localStorage.getItem('myAppUsers'));
+        users[currentUser].schedules.push({ time, task });
+        // เรียงเวลาจากเช้าไปเย็น
+        users[currentUser].schedules.sort((a, b) => a.time.localeCompare(b.time));
+        
+        localStorage.setItem('myAppUsers', JSON.stringify(users));
+        document.getElementById('sched-task').value = '';
+        updateScheduleUI();
+    }
+
+    function updateScheduleUI() {
+        const users = JSON.parse(localStorage.getItem('myAppUsers'));
+        const data = users[currentUser].schedules;
+        const list = document.getElementById('sched-list');
+        list.innerHTML = '';
+
+        data.forEach(s => {
+            list.innerHTML += `
+                <div class="schedule-item">
+                    <div class="time-tag">${s.time}</div>
+                    <div>${s.task}</div>
+                </div>`;
         });
     }
 </script>
-
 </body>
 </html>
