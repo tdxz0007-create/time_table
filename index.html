@@ -10,6 +10,33 @@
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
+  .bottom-nav{
+     box-shadow:0 -5px 20px rgba(0,0,0,0.3);
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    background:rgba(0,0,0,0.6);
+    backdrop-filter:blur(10px);
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    z-index:1000;
+}
+
+.bottom-nav button{
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:20px;
+    opacity:0.6;
+}
+
+.bottom-nav button.active-tab{
+    opacity:1;
+    transform:scale(1.2);
+}
+
 *{
     margin:0;
     padding:0;
@@ -120,6 +147,50 @@ tr:nth-child(even){
         gap:10px;
     }
 }
+
+/* spacing ดีขึ้น */
+.card{
+    margin-bottom:15px;
+    padding:18px;
+}
+
+/* text hierarchy */
+h1{
+    font-weight:700;
+}
+
+h2,h3{
+    font-weight:600;
+}
+
+/* hover / tap */
+.card:active{
+    transform:scale(0.98);
+    transition:0.1s;
+}
+
+/* smooth */
+*{
+    transition:0.2s;
+}
+
+/* icon menu */
+.card div[onclick]{
+    cursor:pointer;
+}
+
+/* badge หมวด */
+.badge{
+    padding:4px 10px;
+    border-radius:10px;
+    font-size:12px;
+    background:#ffffff22;
+}
+#content{
+  padding-bottom:80px;
+    transition: all 0.25s ease;
+}
+
 </style>
 </head>
 
@@ -161,12 +232,20 @@ tr:nth-child(even){
                 <button onclick="showSummary()">สรุป</button>
                 <button onclick="showGoals()">เป้าหมาย</button>
                 <button onclick="logout()">ออก</button>
+                <button onclick="showCategory()">📂 หมวดหมู่</button>
+                <button onclick="showSettings()">⚙️ ตั้งค่า</button>
             </div>
         </div>
 
         <!-- CONTENT -->
         <div id="content"></div>
-
+<div class="bottom-nav">
+    <button id="tab-dashboard" onclick="setTab('dashboard')">🏠</button>
+    <button id="tab-income" onclick="setTab('income')">💰</button>
+    <button id="tab-expense" onclick="setTab('expense')">💸</button>
+    <button id="tab-insight" onclick="setTab('insight')">📊</button>
+    <button id="tab-more" onclick="setTab('more')">☰</button>
+</div>
     </div>
 
 </div>
@@ -176,13 +255,41 @@ tr:nth-child(even){
 /* STORAGE */
 let users = JSON.parse(localStorage.getItem("users")) || [];
 let currentUser = null;
+function showMore(){
 
+let html = `
+<div class="card">
+<h2>⚙️ เมนูเพิ่มเติม</h2>
+
+<button onclick="showDashboard()">🏠 Dashboard</button>
+<button onclick="showCategory()">📂 หมวดหมู่</button>
+<button onclick="showGoals()">🎯 เป้าหมาย</button>
+<button onclick="showSummary()">📊 สรุป</button>
+<button onclick="showSettings()">🔒 ตั้งค่า</button>
+<button onclick="showBudget()">💸 งบประมาณ</button>
+
+</div>
+`;
+
+renderContent(html);
+
+}
 /* PAGE SWITCH */
 function showRegister(){
     document.getElementById("loginPage").classList.add("hidden");
     document.getElementById("registerPage").classList.remove("hidden");
 }
+function adjustPadding(){
+    let nav = document.querySelector(".bottom-nav");
+    let content = document.getElementById("content");
 
+    if(nav && content){
+        content.style.paddingBottom = nav.offsetHeight + "px";
+    }
+}
+
+window.onload = adjustPadding;
+window.onresize = adjustPadding;
 function showLogin(){
     document.getElementById("registerPage").classList.add("hidden");
     document.getElementById("loginPage").classList.remove("hidden");
@@ -190,6 +297,7 @@ function showLogin(){
 
 /* REGISTER */
 function register(){
+
     let user = document.getElementById("regUser").value;
     let pass = document.getElementById("regPass").value;
 
@@ -198,8 +306,22 @@ function register(){
         return;
     }
 
-    users.push({user,pass,data:[],goals:[]});
-    localStorage.setItem("users",JSON.stringify(users));
+    // 🔥 เช็คซ้ำ
+    if(users.some(u => u.user === user)){
+        alert("มีผู้ใช้นี้แล้ว");
+        return;
+    }
+
+    users.push({
+        user,
+        pass,
+        data: [],
+        goals: [],
+        categories: ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"],
+        budgets: {}
+    });
+
+    localStorage.setItem("users", JSON.stringify(users));
 
     alert("สมัครสำเร็จ");
     showLogin();
@@ -207,16 +329,34 @@ function register(){
 
 /* LOGIN */
 function login(){
+
     let user = document.getElementById("loginUser").value;
     let pass = document.getElementById("loginPass").value;
 
     let found = users.find(u=>u.user===user && u.pass===pass);
 
     if(found){
+
         currentUser = found;
+
+        // ✅ FIX categories
+        if(!currentUser.categories){
+            currentUser.categories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
+        }
+
+        // ✅ FIX budgets (ต้องอยู่ตรงนี้)
+        if(!currentUser.budgets){
+            currentUser.budgets = {};
+        }
+
+        // save user ล่าสุด
+        localStorage.setItem("currentUser",JSON.stringify({user:user}));
+
         document.getElementById("loginPage").classList.add("hidden");
         document.getElementById("appPage").classList.remove("hidden");
-        showIncome();
+
+        setTab("dashboard");
+
     }else{
         alert("ข้อมูลไม่ถูกต้อง");
     }
@@ -225,17 +365,100 @@ function login(){
 /* LOGOUT */
 function logout(){
     currentUser = null;
+    localStorage.removeItem("currentUser");
     document.getElementById("appPage").classList.add("hidden");
     document.getElementById("loginPage").classList.remove("hidden");
 }
 
 </script>
+window.onload = function(){
 
+    let saved = JSON.parse(localStorage.getItem("currentUser"));
+
+    if(saved){
+
+        let found = users.find(u => u.user === saved.user);
+
+        if(found){
+
+            currentUser = found;
+
+            // แก้ edge case (กันข้อมูลเก่า)
+            if(!currentUser.categories){
+                currentUser.categories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
+            }
+
+            if(!currentUser.budgets){
+                currentUser.budgets = {};
+            }
+
+            document.getElementById("loginPage").classList.add("hidden");
+            document.getElementById("appPage").classList.remove("hidden");
+
+            setTab("dashboard");
+            if(saved){
+
+    let found = users.find(u => u.user === saved.user);
+
+    if(!found){
+        localStorage.removeItem("currentUser");
+        return;
+    }
+}
+        }
+    }
+}
 </body>
 ```
 ```html
 <script>
+  function animatePage(){
 
+    let el = document.getElementById("content");
+
+    el.style.opacity = 0;
+    el.style.transform = "translateY(10px)";
+
+    setTimeout(()=>{
+        el.style.opacity = 1;
+        el.style.transform = "translateY(0)";
+    },100);
+}
+  function getCategoryColor(cat){
+
+    let map = {
+        "อาหาร":"#f97316",
+        "เดินทาง":"#3b82f6",
+        "ช้อปปิ้ง":"#ec4899",
+        "บิล":"#ef4444",
+        "อื่นๆ":"#10b981"
+    };
+
+    return map[cat] || "#999";
+}
+function resetData(){
+
+    if(!confirm("ลบข้อมูลทั้งหมดจริงไหม?")) return;
+
+    // ล้างข้อมูล
+    currentUser.data = [];
+    currentUser.goals = [];
+    currentUser.categories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
+
+    // อัปเดต users
+    let index = users.findIndex(u => u.user === currentUser.user);
+    if(index !== -1){
+        users[index] = currentUser;
+    }
+
+    // save ลง localStorage
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // รีเฟรชหน้า
+    setTab("dashboard");
+
+    alert("ลบข้อมูลเรียบร้อยแล้ว");
+}
 /* =========================
    SYSTEM INCOME / EXPENSE
 ========================= */
@@ -250,14 +473,26 @@ function saveData(){
    SHOW INCOME PAGE
 ========================= */
 function showIncome(){
-    renderForm("income");
+    renderForm("income"); 
+    animatePage();
 }
+function renderContent(html){
+    let el = document.getElementById("content");
 
+    el.style.opacity = 0;
+    el.innerHTML = html;
+
+    requestAnimationFrame(()=>{
+        el.style.opacity = 1;
+        el.style.transform = "translateY(0)";
+    });
+}
 /* =========================
    SHOW EXPENSE PAGE
 ========================= */
 function showExpense(){
     renderForm("expense");
+    animatePage(); 
 }
 
 /* =========================
@@ -272,7 +507,9 @@ function renderForm(type){
         <input type="text" id="desc" placeholder="รายละเอียด">
         <input type="number" id="amount" placeholder="จำนวนเงิน">
         <input type="date" id="date">
-
+<select id="category">
+    ${currentUser.categories.map(c=>`<option value="${c}">${c}</option>`).join("")}
+</select>
         <button onclick="addItem('${type}')">บันทึก</button>
     </div>
 
@@ -287,6 +524,7 @@ function renderForm(type){
                     <th>วันที่</th>
                     <th>รายละเอียด</th>
                     <th>จำนวน</th>
+                     <th>หมวดหมู่</th>
                     <th>ประเภท</th>
                     <th>ลบ</th>
                 </tr>
@@ -306,6 +544,7 @@ function renderForm(type){
                     <td style="color:${type==="income"?"#00ff99":"#ff4d4d"}">
                         ${item.amount.toLocaleString()} บาท
                     </td>
+                    <td>${item.category || "-"}</td>
                     <td>${type==="income"?"รายรับ":"รายจ่าย"}</td>
                     <td>
                         <button onclick="deleteItem(${index})" style="background:#ff4d4d;">ลบ</button>
@@ -327,16 +566,18 @@ function renderForm(type){
     </div>
     `;
 
-    document.getElementById("content").innerHTML = html;
+    renderContent(html);
 }
 
 /* =========================
    ADD ITEM
 ========================= */
 function addItem(type){
+
     let desc = document.getElementById("desc").value;
     let amount = document.getElementById("amount").value;
     let date = document.getElementById("date").value;
+    let category = document.getElementById("category").value;
 
     if(!desc || !amount || !date){
         alert("กรอกข้อมูลให้ครบ");
@@ -344,10 +585,11 @@ function addItem(type){
     }
 
     currentUser.data.push({
-        desc:desc,
-        amount:Number(amount),
-        date:date,
-        type:type
+        desc: desc,
+        amount: Number(amount),
+        date: date,
+        type: type,
+        category: category
     });
 
     saveData();
@@ -357,11 +599,11 @@ function addItem(type){
 /* =========================
    DELETE ITEM
 ========================= */
-function deleteItem(index){
+function deleteItem(index, type){
     if(confirm("ต้องการลบใช่ไหม?")){
         currentUser.data.splice(index,1);
         saveData();
-        showIncome();
+        renderForm(type);
     }
 }
 
@@ -433,7 +675,7 @@ function showSummary(){
     </div>
     `;
 
-    document.getElementById("content").innerHTML = html;
+    renderContent(html);
 
     renderSummary();
 }
@@ -449,7 +691,8 @@ function getFilteredData(){
 
     if(type === "all") return data;
 
-    return data.filter(item=>{
+    return data.filter(item => {
+
         let d = new Date(item.date);
 
         if(type === "day"){
@@ -466,15 +709,25 @@ function getFilteredData(){
         }
 
         if(type === "custom"){
-            let start = new Date(document.getElementById("startDate").value);
-            let end = new Date(document.getElementById("endDate").value);
+
+            let startVal = document.getElementById("startDate").value;
+            let endVal = document.getElementById("endDate").value;
+
+            // ❗ กันค่าว่าง
+            if(!startVal || !endVal) return false;
+
+            let start = new Date(startVal);
+            let end = new Date(endVal);
+
+            // ❗ กันวันสลับ
+            if(start > end) return false;
+
             return d >= start && d <= end;
         }
 
+        return false; // ❗ กัน fallback
     });
-
 }
-
 /* =========================
    RENDER SUMMARY
 ========================= */
@@ -642,7 +895,7 @@ function showGoals(){
     </div>
     `;
 
-    document.getElementById("content").innerHTML = html;
+    renderContent(html);
 }
 
 /* =========================
@@ -720,159 +973,387 @@ function calculateProgress(goalAmount){
 
     return percent;
 }
+/* default category */
+let defaultCategories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
 
-</script>
-```
-```html id="final5close"
-<script>
+if(currentUser && !currentUser.categories){
+    currentUser.categories = defaultCategories;
+}
 
-/* =========================
-   AUTO LOGIN
-========================= */
-window.onload = function(){
+/* แสดงหน้า */
+function showCategory(){
 
-    let savedUser = localStorage.getItem("currentUser");
+let html = `
+<div class="card">
+<h2>📂 หมวดหมู่</h2>
 
-    if(savedUser){
-        let userObj = JSON.parse(savedUser);
+<input id="newCat" placeholder="เพิ่มหมวดหมู่ใหม่">
+<button onclick="addCategory()">เพิ่ม</button>
+</div>
 
-        let found = users.find(u=>u.user === userObj.user);
+<div class="card">
+<h3>รายการหมวดหมู่</h3>
+`;
 
-        if(found){
-            currentUser = found;
+currentUser.categories.forEach((c,i)=>{
+html += `
+<div style="display:flex;justify-content:space-between;margin:8px 0;">
+<span>${c}</span>
+<button onclick="deleteCategory(${i})" style="background:#ff4d4d;">ลบ</button>
+</div>
+`;
+});
 
-            document.getElementById("loginPage").classList.add("hidden");
-            document.getElementById("appPage").classList.remove("hidden");
+html += `</div>`;
 
-            showIncome();
+renderContent(html);
+animatePage();
+}
+
+/* เพิ่ม */
+function addCategory(){
+let val = document.getElementById("newCat").value;
+if(!val) return;
+
+currentUser.categories.push(val);
+saveData();
+showCategory();
+}
+
+/* ลบ */
+function deleteCategory(i){
+
+    let removed = currentUser.categories[i];
+
+    currentUser.categories.splice(i,1);
+
+    // 🔥 เปลี่ยนรายการเก่าที่ใช้หมวดนี้
+    currentUser.data.forEach(d=>{
+        if(d.category === removed){
+            d.category = "อื่นๆ";
         }
+    });
+
+    saveData();
+    showCategory();
+}
+function showDashboard(){
+
+let income = 0;
+let expense = 0;
+
+currentUser.data.forEach(d=>{
+    if(d.type==="income") income += d.amount;
+    else expense += d.amount;
+});
+
+let balance = income - expense;
+
+/* 🔥 สร้างแจ้งเตือนงบ */
+let warnHTML = "";
+
+for(let cat in currentUser.budgets){
+
+    let limit = currentUser.budgets[cat];
+    let used = 0;
+
+    currentUser.data.forEach(d=>{
+        if(d.type==="expense" && d.category===cat){
+            used += d.amount;
+        }
+    });
+
+    if(limit > 0 && used > limit){
+        warnHTML += `
+        <div style="
+        background:#ff4d4d22;
+        padding:10px;
+        border-radius:12px;
+        margin-top:10px;
+        color:#ff4d4d;
+        ">
+        ⚠️ ${cat} เกินงบ (${used}/${limit})
+        </div>`;
     }
-};
+}
 
-/* =========================
-   SAVE CURRENT USER SESSION
-========================= */
-function login(){
-    let user = document.getElementById("loginUser").value;
-    let pass = document.getElementById("loginPass").value;
+/* รายการล่าสุด */
+let recent = currentUser.data.slice(-4).reverse();
 
-    let found = users.find(u=>u.user===user && u.pass===pass);
+let html = `
 
-    if(found){
-        currentUser = found;
+<!-- HERO -->
+<div class="card" style="
+background:linear-gradient(135deg,#3b82f6,#06b6d4);
+color:white;
+padding:25px;
+border-radius:25px;
+">
 
-        localStorage.setItem("currentUser",JSON.stringify({user:user}));
+<p style="opacity:0.8;">ยอดเงินคงเหลือ</p>
 
-        document.getElementById("loginPage").classList.add("hidden");
-        document.getElementById("appPage").classList.remove("hidden");
+<h1 style="font-size:32px;margin:10px 0;">
+${balance.toLocaleString()} ฿
+</h1>
 
-        showIncome();
+<!-- 🔥 ใส่แจ้งเตือนตรงนี้ -->
+${warnHTML}
+${Object.keys(currentUser.budgets).map(cat=>{
+
+    let limit = currentUser.budgets[cat] || 0;
+    let used = 0;
+
+    currentUser.data.forEach(d=>{
+        if(d.type==="expense" && d.category===cat){
+            used += d.amount;
+        }
+    });
+
+    let percent = limit ? Math.min((used/limit*100),100) : 0;
+
+    return `
+    <div style="margin-top:10px;">
+
+        <div style="display:flex;justify-content:space-between;font-size:12px;">
+            <span>${cat}</span>
+            <span>${used} / ${limit || "-"}</span>
+        </div>
+
+        <div style="
+        background:#ffffff33;
+        height:8px;
+        border-radius:10px;
+        margin-top:4px;
+        ">
+
+            <div style="
+            width:${percent}%;
+            background:${used>limit?"#ff4d4d":"#00ff99"};
+            height:100%;
+            border-radius:10px;
+            ">
+            </div>
+
+        </div>
+
+    </div>
+    `;
+
+}).join("")}
+<div style="display:flex;justify-content:space-between;font-size:14px;">
+<span>+ ${income.toLocaleString()}</span>
+<span>- ${expense.toLocaleString()}</span>
+</div>
+
+</div>
+
+<!-- QUICK ACTION -->
+<div class="card">
+<div style="display:flex;justify-content:space-around;text-align:center;">
+
+<div onclick="setTab('income')">
+<div style="font-size:24px;">💰</div>
+<p>รับ</p>
+</div>
+
+<div onclick="setTab('expense')">
+<div style="font-size:24px;">💸</div>
+<p>จ่าย</p>
+</div>
+
+<div onclick="showSummary()">
+<div style="font-size:24px;">📊</div>
+<p>สรุป</p>
+</div>
+
+<div onclick="showGoals()">
+<div style="font-size:24px;">🎯</div>
+<p>เป้า</p>
+</div>
+
+</div>
+</div>
+
+<!-- RECENT -->
+<div class="card">
+<h3>📌 ล่าสุด</h3>
+`;
+
+recent.forEach(r=>{
+html += `
+<div style="
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #ffffff22;
+">
+
+<div>
+<div>${r.desc}</div>
+
+<span style="
+background:${getCategoryColor(r.category)};
+padding:4px 10px;
+border-radius:10px;
+font-size:12px;
+color:white;
+display:inline-block;
+margin-top:4px;
+">
+${r.category || "อื่นๆ"}
+</span>
+
+</div>
+
+<div style="color:${r.type==="income"?"#00ff99":"#ff4d4d"}">
+${r.type==="income"?"+":"-"}${r.amount.toLocaleString()}
+</div>
+
+</div>
+`;
+});
+
+html += `</div>
+
+<!-- QUICK ADD -->
+<div class="card">
+<button onclick="quickAdd()" class="big-btn">
+➕ เพิ่มรายการ
+</button>
+</div>
+`;
+
+renderContent(html);
+
+}
+function quickAdd(){
+    showIncome(); // หรือเปิด modal ก็ได้
+}
+
+function showSettings(){
+
+let html = `
+<div class="card">
+<h2>⚙️ ตั้งค่า</h2>
+
+<button onclick="toggleTheme()">🌙 เปลี่ยนธีม</button>
+
+<button onclick="exportData()">📤 Export ข้อมูล</button>
+
+<button onclick="resetData()" style="background:#ff4d4d;">
+🗑️ ลบข้อมูลทั้งหมด
+</button>
+
+</div>
+`;
+
+renderContent(html);
+animatePage();
+}
+
+/* เปลี่ยนธีม */
+function toggleTheme(){
+
+    let isLight = document.body.classList.toggle("light");
+
+    if(isLight){
+        document.body.style.background = "#f1f5f9";
+        document.body.style.color = "#000";
     }else{
-        alert("ข้อมูลไม่ถูกต้อง");
+        document.body.style.background = "#0f172a";
+        document.body.style.color = "#fff";
     }
 }
 
-/* =========================
-   LOGOUT CLEAR SESSION
-========================= */
-function logout(){
-    currentUser = null;
+/* export */
+function exportData(){
 
-    localStorage.removeItem("currentUser");
+let data = JSON.stringify(currentUser);
 
-    document.getElementById("appPage").classList.add("hidden");
-    document.getElementById("loginPage").classList.remove("hidden");
+let blob = new Blob([data],{type:"application/json"});
+let a = document.createElement("a");
+
+a.href = URL.createObjectURL(blob);
+a.download = "finance-data.json";
+a.click();
+
 }
 
-/* =========================
-   ANIMATION SYSTEM
-========================= */
-document.addEventListener("click",function(e){
+/* reset */
+function setTab(tab){
 
-    if(e.target.tagName === "BUTTON"){
-        e.target.style.transform = "scale(0.95)";
-        setTimeout(()=>{
-            e.target.style.transform = "scale(1)";
-        },150);
+    let nav = document.querySelectorAll(".bottom-nav button");
+
+    if(nav){
+        nav.forEach(btn=>btn.classList.remove("active-tab"));
     }
 
-});
+    let el = document.getElementById("tab-"+tab);
+    if(el) el.classList.add("active-tab");
 
-/* =========================
-   SAFE INPUT (ANTI BUG)
-========================= */
-document.addEventListener("input",function(e){
-
-    if(e.target.type === "number"){
-        if(e.target.value < 0){
-            e.target.value = 0;
-        }
-    }
-
-});
-
-/* =========================
-   PREVENT EMPTY DATE BUG
-========================= */
-function getToday(){
-    let d = new Date();
-    return d.toISOString().split("T")[0];
+    if(tab==="dashboard") showDashboard();
+    if(tab==="income") showIncome();
+    if(tab==="expense") showExpense();
+    if(tab==="insight") showInsight();
+    if(tab==="more") showMore();
 }
+function showInsight(){
 
-document.addEventListener("focusin",function(e){
-    if(e.target.type === "date" && !e.target.value){
-        e.target.value = getToday();
+let map = {};
+
+currentUser.data.forEach(d=>{
+    if(d.type==="expense"){
+        if(!map[d.category]) map[d.category]=0;
+        map[d.category]+=d.amount;
     }
 });
 
-/* =========================
-   MOBILE TOUCH SMOOTH
-========================= */
-document.body.style.webkitTapHighlightColor = "transparent";
+let html = `<div class="card"><h2>🧠 วิเคราะห์</h2>`;
 
-/* =========================
-   EXTRA: DARK MODE AUTO
-========================= */
-if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-    document.body.style.background = "linear-gradient(135deg,#0f2027,#203a43,#2c5364)";
+for(let c in map){
+    html += `<p>${c}: ${map[c].toLocaleString()} บาท</p>`;
 }
 
-/* =========================
-   EXTRA: SCROLL SMOOTH
-========================= */
-document.documentElement.style.scrollBehavior = "smooth";
+html += `</div>`;
 
-/* =========================
-   EXTRA: TOAST SYSTEM
-========================= */
-function toast(msg){
+renderContent(html);
 
-    let t = document.createElement("div");
-
-    t.innerText = msg;
-
-    t.style.position = "fixed";
-    t.style.bottom = "20px";
-    t.style.left = "50%";
-    t.style.transform = "translateX(-50%)";
-    t.style.background = "#000000cc";
-    t.style.padding = "10px 20px";
-    t.style.borderRadius = "10px";
-    t.style.color = "#fff";
-    t.style.zIndex = "9999";
-
-    document.body.appendChild(t);
-
-    setTimeout(()=>{
-        t.remove();
-    },2000);
 }
 
-/* ใช้ toast แทน alert */
-window.alert = toast;
+function showBudget(){
+
+let html = `
+<div class="card">
+<h2>💸 ตั้งงบต่อหมวด</h2>
+`;
+
+currentUser.categories.forEach(cat=>{
+
+    let val = currentUser.budgets[cat] || "";
+
+    html += `
+    <div style="margin:10px 0;">
+        <label>${cat}</label>
+        <input type="number" 
+        value="${val}" 
+        placeholder="ตั้งงบ เช่น 5000"
+        onchange="setBudget('${cat}',this.value)">
+    </div>
+    `;
+});
+
+html += `</div>`;
+
+renderContent(html);
+
+}
+
+function setBudget(cat,val){
+    currentUser.budgets[cat] = Number(val);
+    saveData();
+}
+
 
 </script>
-
-</body>
-</html>
 ```
+
