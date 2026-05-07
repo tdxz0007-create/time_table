@@ -1,1359 +1,1003 @@
-```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบรายรับรายจ่าย</title>
-
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
-
+<title>บันทึกชีวิต · ไดอารี่และเป้าหมาย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <style>
-  .bottom-nav{
-     box-shadow:0 -5px 20px rgba(0,0,0,0.3);
-    position:fixed;
-    bottom:0;
-    left:0;
-    width:100%;
-    background:rgba(0,0,0,0.6);
-    backdrop-filter:blur(10px);
-    display:flex;
-    justify-content:space-around;
-    padding:10px 0;
-    z-index:1000;
-}
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface2: #f4f0eb;
+    --border: #e8e2d9;
+    --text: #2c2825;
+    --text-muted: #9a9189;
+    --accent: #c9a87c;
+    --accent-light: #f5ede0;
+    --accent-dark: #a07850;
+    --green: #7cad8a;
+    --green-light: #e8f4eb;
+    --red: #d4756b;
+    --red-light: #faeae8;
+    --daily: #7c9ec9;
+    --daily-light: #e8eff8;
+    --monthly: #9e7cc9;
+    --monthly-light: #f0ebf8;
+    --yearly: #c98a7c;
+    --yearly-light: #f8ede8;
+    --shadow: 0 4px 24px rgba(44,40,37,0.08);
+    --shadow-lg: 0 12px 48px rgba(44,40,37,0.14);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
 
-.bottom-nav button{
-    background:none;
-    border:none;
-    color:#fff;
-    font-size:20px;
-    opacity:0.6;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.bottom-nav button.active-tab{
-    opacity:1;
-    transform:scale(1.2);
-}
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Kanit', sans-serif;
-}
+  /* ── LOGIN SCREEN ── */
+  #loginScreen {
+    position: fixed; inset: 0; z-index: 1000;
+    background: linear-gradient(135deg, #fdf6ee 0%, #f0e8da 50%, #e8ddd0 100%);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity .5s, transform .5s;
+  }
+  #loginScreen.hide { opacity: 0; transform: scale(.97); pointer-events: none; }
 
-body{
-    background:linear-gradient(135deg,#1e3c72,#2a5298);
-    min-height:100vh;
-    color:#fff;
-}
+  .login-card {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 48px 44px;
+    width: 100%; max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    animation: fadeUp .6s ease both;
+  }
+  .login-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-style: italic;
+    color: var(--accent-dark);
+    margin-bottom: 4px;
+  }
+  .login-sub { color: var(--text-muted); font-size: .9rem; margin-bottom: 32px; }
 
-/* container */
-.container{
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
-}
+  .login-tabs {
+    display: flex; gap: 0;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+  .login-tab {
+    flex: 1; padding: 8px 0; border: none;
+    background: transparent; border-radius: 9px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: .9rem; font-weight: 500;
+    color: var(--text-muted); cursor: pointer;
+    transition: all .25s;
+  }
+  .login-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
 
-/* card */
-.card{
-    background:rgba(255,255,255,0.1);
-    backdrop-filter:blur(15px);
-    border-radius:20px;
-    padding:20px;
-    margin-bottom:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.3);
-}
+  .form-group { margin-bottom: 16px; text-align: left; }
+  .form-label { font-size: .82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; display: block; letter-spacing: .03em; }
+  .form-input {
+    width: 100%; padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Sarabun', sans-serif;
+    font-size: .95rem; color: var(--text);
+    background: var(--bg);
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(201,168,124,.15); }
 
-/* input */
-input,select{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-    margin-top:8px;
-    margin-bottom:15px;
-    outline:none;
-    font-size:16px;
-}
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    border: none; border-radius: var(--radius-sm);
+    color: #fff; font-family: 'Sarabun', sans-serif;
+    font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: all .25s;
+    margin-top: 4px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(160,120,80,.3); }
+  .btn-primary:active { transform: translateY(0); }
 
-/* button */
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:12px;
-    background:#00c6ff;
-    color:#fff;
-    font-size:16px;
-    cursor:pointer;
-    transition:0.3s;
-}
+  .login-msg { font-size: .85rem; margin-top: 12px; min-height: 20px; }
+  .login-msg.error { color: var(--red); }
+  .login-msg.success { color: var(--green); }
 
-button:hover{
-    background:#0072ff;
-}
+  /* ── MAIN APP ── */
+  #app { display: none; min-height: 100vh; }
+  #app.show { display: block; animation: fadeUp .5s ease both; }
 
-/* navbar */
-.navbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(44,40,37,0.06);
+  }
+  .topbar-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-style: italic;
+    color: var(--accent-dark);
+  }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .topbar-user {
+    font-size: .85rem; color: var(--text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .topbar-user span { font-weight: 600; color: var(--text); }
+  .btn-logout {
+    padding: 6px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; background: transparent;
+    font-family: 'Sarabun', sans-serif; font-size: .82rem;
+    color: var(--text-muted); cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-logout:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
 
-.navbar h1{
-    font-size:22px;
-}
+  /* NAV TABS */
+  .nav-tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0; padding: 0 24px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 16px 20px; border: none; background: none;
+    font-family: 'Sarabun', sans-serif; font-size: .95rem;
+    color: var(--text-muted); cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: all .2s; white-space: nowrap;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .nav-tab.active { color: var(--accent-dark); border-color: var(--accent); font-weight: 600; }
+  .nav-tab:hover:not(.active) { color: var(--text); }
+  .tab-icon { font-size: 1.1rem; }
 
-.menu{
-    display:flex;
-    gap:10px;
-}
+  /* PAGES */
+  .page { display: none; padding: 32px 24px; max-width: 860px; margin: 0 auto; }
+  .page.active { display: block; animation: fadeUp .35s ease both; }
 
-.menu button{
-    background:#ffffff22;
-}
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 28px; }
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .page-desc { color: var(--text-muted); font-size: .9rem; }
 
-/* hide */
-.hidden{
-    display:none;
-}
+  /* ── DIARY ── */
+  .diary-composer {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+  .composer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .composer-date-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .date-field, .time-field {
+    padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Sarabun', sans-serif; font-size: .88rem;
+    color: var(--text); background: var(--bg);
+    outline: none; transition: border-color .2s;
+    cursor: pointer;
+  }
+  .date-field:focus, .time-field:focus { border-color: var(--accent); }
+  .mood-row { display: flex; gap: 8px; }
+  .mood-btn {
+    font-size: 1.3rem; border: none; background: none;
+    cursor: pointer; transition: transform .15s, filter .15s;
+    border-radius: 8px; padding: 4px 6px;
+    filter: grayscale(60%); opacity: .6;
+  }
+  .mood-btn:hover { filter: grayscale(0%); opacity: 1; transform: scale(1.15); }
+  .mood-btn.selected { filter: grayscale(0%); opacity: 1; transform: scale(1.15); }
+  .composer-title-input {
+    width: 100%; padding: 10px 0; border: none;
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 1.2rem; color: var(--text); background: transparent;
+    border-bottom: 1.5px solid var(--border); outline: none;
+    margin-bottom: 14px; transition: border-color .2s;
+  }
+  .composer-title-input:focus { border-color: var(--accent); }
+  .composer-title-input::placeholder { color: var(--text-muted); }
+  .diary-textarea {
+    width: 100%; min-height: 160px;
+    border: none; outline: none; resize: none;
+    font-family: 'Sarabun', sans-serif; font-size: 1rem;
+    line-height: 1.8; color: var(--text); background: transparent;
+    padding: 0;
+  }
+  .diary-textarea::placeholder { color: var(--text-muted); }
+  .composer-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 16px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 10px;
+  }
+  .char-count { font-size: .8rem; color: var(--text-muted); }
+  .btn-save-diary {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+    border: none; border-radius: 10px; color: #fff;
+    font-family: 'Sarabun', sans-serif; font-size: .95rem; font-weight: 600;
+    cursor: pointer; transition: all .25s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-save-diary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(160,120,80,.28); }
 
-/* table */
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+  /* DIARY ENTRIES */
+  .section-title {
+    font-size: .8rem; font-weight: 700; letter-spacing: .1em;
+    color: var(--text-muted); text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .diary-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    transition: box-shadow .2s, transform .2s;
+    position: relative;
+    animation: fadeUp .3s ease both;
+  }
+  .diary-entry:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .entry-meta {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .entry-date {
+    font-size: .8rem; font-weight: 600;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .entry-mood { font-size: 1.1rem; }
+  .entry-title {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 1.05rem; font-weight: 700;
+    margin-bottom: 6px; color: var(--text);
+  }
+  .entry-body {
+    font-size: .92rem; color: #5a5450;
+    line-height: 1.7; white-space: pre-wrap;
+    display: -webkit-box; -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .entry-body.expanded { -webkit-line-clamp: unset; overflow: visible; }
+  .entry-actions {
+    display: flex; gap: 8px; margin-top: 12px;
+  }
+  .btn-sm {
+    padding: 5px 12px; border-radius: 7px; font-size: .8rem;
+    border: 1.5px solid var(--border); background: none;
+    font-family: 'Sarabun', sans-serif;
+    cursor: pointer; transition: all .2s; color: var(--text-muted);
+  }
+  .btn-sm:hover { color: var(--text); border-color: var(--text-muted); }
+  .btn-sm.danger:hover { color: var(--red); border-color: var(--red); background: var(--red-light); }
 
-th,td{
-    padding:12px;
-    text-align:center;
-}
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: .5; }
+  .empty-text { font-size: 1rem; }
 
-th{
-    background:#ffffff22;
-}
+  /* ── GOALS ── */
+  .goals-grid {
+    display: grid; grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 640px) { .goals-grid { grid-template-columns: repeat(3, 1fr); } }
 
-tr:nth-child(even){
-    background:#ffffff11;
-}
+  .goal-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .goal-section-header {
+    padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .goal-section-header.daily { background: var(--daily-light); border-bottom: 2px solid var(--daily); }
+  .goal-section-header.monthly { background: var(--monthly-light); border-bottom: 2px solid var(--monthly); }
+  .goal-section-header.yearly { background: var(--yearly-light); border-bottom: 2px solid var(--yearly); }
+  .goal-section-title {
+    font-weight: 700; font-size: .95rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .goal-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .daily .goal-dot { background: var(--daily); }
+  .monthly .goal-dot { background: var(--monthly); }
+  .yearly .goal-dot { background: var(--yearly); }
+  .goal-count {
+    font-size: .75rem; padding: 2px 8px; border-radius: 12px;
+    font-weight: 600;
+  }
+  .daily .goal-count { background: var(--daily); color: #fff; }
+  .monthly .goal-count { background: var(--monthly); color: #fff; }
+  .yearly .goal-count { background: var(--yearly); color: #fff; }
 
-/* mobile */
-@media(max-width:768px){
-    .navbar{
-        flex-direction:column;
-        gap:10px;
-    }
-}
+  .goal-progress-bar {
+    height: 3px;
+    background: var(--border);
+  }
+  .goal-progress-fill {
+    height: 100%; border-radius: 2px;
+    transition: width .5s ease;
+  }
+  .daily .goal-progress-fill { background: var(--daily); }
+  .monthly .goal-progress-fill { background: var(--monthly); }
+  .yearly .goal-progress-fill { background: var(--yearly); }
 
-/* spacing ดีขึ้น */
-.card{
-    margin-bottom:15px;
-    padding:18px;
-}
+  .goal-add-row {
+    display: flex; gap: 8px; padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .goal-input {
+    flex: 1; padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-family: 'Sarabun', sans-serif;
+    font-size: .88rem; color: var(--text); background: var(--bg);
+    outline: none; transition: border-color .2s;
+  }
+  .goal-input:focus { border-color: var(--accent); }
+  .btn-add-goal {
+    padding: 8px 14px; border: none; border-radius: 8px;
+    font-family: 'Sarabun', sans-serif; font-size: .88rem;
+    font-weight: 600; cursor: pointer; transition: all .2s;
+    color: #fff; flex-shrink: 0;
+  }
+  .daily .btn-add-goal { background: var(--daily); }
+  .monthly .btn-add-goal { background: var(--monthly); }
+  .yearly .btn-add-goal { background: var(--yearly); }
+  .btn-add-goal:hover { opacity: .85; transform: scale(.97); }
 
-/* text hierarchy */
-h1{
-    font-weight:700;
-}
+  .goal-list { padding: 8px 0; min-height: 60px; }
+  .goal-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; transition: background .15s;
+    animation: fadeUp .25s ease both;
+  }
+  .goal-item:hover { background: var(--surface2); }
+  .goal-check {
+    width: 20px; height: 20px; border-radius: 6px;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; transition: all .2s;
+    background: var(--surface);
+  }
+  .goal-item.done .goal-check {
+    border-color: var(--green); background: var(--green);
+    color: #fff; font-size: .7rem;
+  }
+  .goal-text {
+    flex: 1; font-size: .9rem; line-height: 1.4;
+    word-break: break-word; transition: all .2s;
+  }
+  .goal-item.done .goal-text {
+    text-decoration: line-through; color: var(--text-muted);
+  }
+  .btn-del-goal {
+    border: none; background: none; cursor: pointer;
+    color: var(--text-muted); font-size: 1rem;
+    padding: 2px 4px; opacity: 0; transition: opacity .15s, color .15s;
+    flex-shrink: 0;
+  }
+  .goal-item:hover .btn-del-goal { opacity: 1; }
+  .btn-del-goal:hover { color: var(--red); }
 
-h2,h3{
-    font-weight:600;
-}
+  /* ── STATS ── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 16px; margin-bottom: 28px;
+  }
+  @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+    text-align: center; box-shadow: var(--shadow);
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700;
+    color: var(--accent-dark); line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-label { font-size: .8rem; color: var(--text-muted); font-weight: 500; }
 
-/* hover / tap */
-.card:active{
-    transform:scale(0.98);
-    transition:0.1s;
-}
+  .streak-card {
+    background: linear-gradient(135deg, var(--accent-dark) 0%, #7a5a38 100%);
+    border-radius: var(--radius); padding: 24px 28px;
+    color: #fff; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 20px;
+    box-shadow: 0 8px 28px rgba(160,120,80,.3);
+  }
+  .streak-fire { font-size: 2.8rem; }
+  .streak-num { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; line-height: 1; }
+  .streak-text { font-size: .9rem; opacity: .85; margin-top: 4px; }
 
-/* smooth */
-*{
-    transition:0.2s;
-}
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--text); color: #fff;
+    padding: 12px 20px; border-radius: 12px;
+    font-size: .9rem; font-weight: 500;
+    box-shadow: 0 8px 28px rgba(0,0,0,.2);
+    transform: translateY(80px); opacity: 0;
+    transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
 
-/* icon menu */
-.card div[onclick]{
-    cursor:pointer;
-}
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-/* badge หมวด */
-.badge{
-    padding:4px 10px;
-    border-radius:10px;
-    font-size:12px;
-    background:#ffffff22;
-}
-#content{
-  padding-bottom:80px;
-    transition: all 0.25s ease;
-}
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+  /* MOBILE */
+  @media (max-width: 480px) {
+    .topbar { padding: 0 16px; }
+    .nav-tab { padding: 14px 14px; font-size: .85rem; }
+    .page { padding: 20px 14px; }
+    .login-card { padding: 36px 24px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* CONFIRM DIALOG */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.35);
+    z-index: 2000; display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .overlay.show { opacity: 1; pointer-events: all; }
+  .dialog {
+    background: var(--surface); border-radius: var(--radius);
+    padding: 28px 28px 22px; max-width: 340px; width: 90%;
+    box-shadow: var(--shadow-lg);
+    transform: scale(.95); transition: transform .2s;
+  }
+  .overlay.show .dialog { transform: scale(1); }
+  .dialog-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+  .dialog-msg { font-size: .9rem; color: var(--text-muted); margin-bottom: 20px; }
+  .dialog-btns { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-cancel { padding: 8px 18px; border: 1.5px solid var(--border); border-radius: 8px; background: none; font-family: 'Sarabun', sans-serif; font-size: .9rem; cursor: pointer; }
+  .btn-confirm { padding: 8px 18px; border: none; border-radius: 8px; background: var(--red); color: #fff; font-family: 'Sarabun', sans-serif; font-size: .9rem; font-weight: 600; cursor: pointer; }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-    <!-- LOGIN -->
-    <div id="loginPage" class="card">
-        <h2>เข้าสู่ระบบ</h2>
-        <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้">
-        <input type="password" id="loginPass" placeholder="รหัสผ่าน">
-        <button onclick="login()">เข้าสู่ระบบ</button>
-        <p style="margin-top:10px;">ยังไม่มีบัญชี?
-            <a href="#" onclick="showRegister()">สมัครสมาชิก</a>
-        </p>
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">บันทึกชีวิต</div>
+    <div class="login-sub">ไดอารี่ส่วนตัว · ติดตามเป้าหมาย</div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchTab('login')">เข้าสู่ระบบ</button>
+      <button class="login-tab" onclick="switchTab('register')">สมัครสมาชิก</button>
     </div>
-
-    <!-- REGISTER -->
-    <div id="registerPage" class="card hidden">
-        <h2>สมัครสมาชิก</h2>
-        <input type="text" id="regUser" placeholder="ชื่อผู้ใช้">
-        <input type="password" id="regPass" placeholder="รหัสผ่าน">
-        <button onclick="register()">สมัคร</button>
-        <p style="margin-top:10px;">
-            <a href="#" onclick="showLogin()">กลับไปเข้าสู่ระบบ</a>
-        </p>
+    <div id="loginForm">
+      <div class="form-group">
+        <label class="form-label">ชื่อผู้ใช้</label>
+        <input class="form-input" id="loginUser" type="text" placeholder="กรอกชื่อผู้ใช้">
+      </div>
+      <div class="form-group">
+        <label class="form-label">รหัสผ่าน</label>
+        <input class="form-input" id="loginPass" type="password" placeholder="กรอกรหัสผ่าน">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">เข้าสู่ระบบ</button>
+      <div class="login-msg" id="loginMsg"></div>
     </div>
-
-    <!-- MAIN APP -->
-    <div id="appPage" class="hidden">
-
-        <!-- NAVBAR -->
-        <div class="navbar card">
-            <h1>💰 ระบบรายรับรายจ่าย</h1>
-            <div class="menu">
-                <button onclick="showIncome()">รายรับ</button>
-                <button onclick="showExpense()">รายจ่าย</button>
-                <button onclick="showSummary()">สรุป</button>
-                <button onclick="showGoals()">เป้าหมาย</button>
-                <button onclick="logout()">ออก</button>
-                <button onclick="showCategory()">📂 หมวดหมู่</button>
-                <button onclick="showSettings()">⚙️ ตั้งค่า</button>
-            </div>
-        </div>
-
-        <!-- CONTENT -->
-        <div id="content"></div>
-<div class="bottom-nav">
-    <button id="tab-dashboard" onclick="setTab('dashboard')">🏠</button>
-    <button id="tab-income" onclick="setTab('income')">💰</button>
-    <button id="tab-expense" onclick="setTab('expense')">💸</button>
-    <button id="tab-insight" onclick="setTab('insight')">📊</button>
-    <button id="tab-more" onclick="setTab('more')">☰</button>
+    <div id="registerForm" style="display:none">
+      <div class="form-group">
+        <label class="form-label">ชื่อผู้ใช้</label>
+        <input class="form-input" id="regUser" type="text" placeholder="ตั้งชื่อผู้ใช้">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ชื่อที่ต้องการแสดง</label>
+        <input class="form-input" id="regName" type="text" placeholder="เช่น น้องมิ้ง">
+      </div>
+      <div class="form-group">
+        <label class="form-label">รหัสผ่าน</label>
+        <input class="form-input" id="regPass" type="password" placeholder="ตั้งรหัสผ่าน (อย่างน้อย 4 ตัว)">
+      </div>
+      <button class="btn-primary" onclick="doRegister()">สมัครสมาชิก</button>
+      <div class="login-msg" id="registerMsg"></div>
+    </div>
+  </div>
 </div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">บันทึกชีวิต</div>
+    <div class="topbar-right">
+      <div class="topbar-user">สวัสดี, <span id="displayName">—</span></div>
+      <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('diary')">
+      <span class="tab-icon">📖</span> ไดอารี่
+    </button>
+    <button class="nav-tab" onclick="showPage('goals')">
+      <span class="tab-icon">🎯</span> เป้าหมาย
+    </button>
+    <button class="nav-tab" onclick="showPage('stats')">
+      <span class="tab-icon">📊</span> สถิติ
+    </button>
+  </nav>
+
+  <!-- ── DIARY PAGE ── -->
+  <div class="page active" id="page-diary">
+    <div class="page-header">
+      <div class="page-title">ไดอารี่ของฉัน</div>
+      <div class="page-desc">บันทึกความทรงจำ ความรู้สึก และเรื่องราวในแต่ละวัน</div>
     </div>
 
+    <div class="diary-composer">
+      <div class="composer-header">
+        <div class="composer-date-row">
+          <input type="date" class="date-field" id="entryDate">
+          <input type="time" class="time-field" id="entryTime">
+        </div>
+        <div class="mood-row">
+          <button class="mood-btn" data-mood="😊" onclick="selectMood(this)" title="มีความสุข">😊</button>
+          <button class="mood-btn" data-mood="😌" onclick="selectMood(this)" title="สบายใจ">😌</button>
+          <button class="mood-btn" data-mood="😐" onclick="selectMood(this)" title="เฉยๆ">😐</button>
+          <button class="mood-btn" data-mood="😔" onclick="selectMood(this)" title="เศร้า">😔</button>
+          <button class="mood-btn" data-mood="😤" onclick="selectMood(this)" title="เครียด">😤</button>
+        </div>
+      </div>
+      <input class="composer-title-input" id="entryTitle" placeholder="หัวเรื่อง (ไม่บังคับ)...">
+      <textarea class="diary-textarea" id="entryBody" placeholder="วันนี้เป็นอย่างไรบ้าง? เขียนระบายที่นี่ได้เลย..." oninput="updateCharCount()"></textarea>
+      <div class="composer-footer">
+        <span class="char-count" id="charCount">0 ตัวอักษร</span>
+        <button class="btn-save-diary" onclick="saveDiary()">💾 บันทึก</button>
+      </div>
+    </div>
+
+    <div class="section-title">บันทึกที่ผ่านมา</div>
+    <div id="diaryList"></div>
+  </div>
+
+  <!-- ── GOALS PAGE ── -->
+  <div class="page" id="page-goals">
+    <div class="page-header">
+      <div class="page-title">เป้าหมายของฉัน</div>
+      <div class="page-desc">ติดตามสิ่งที่อยากทำ ทีละก้าว วันละนิด ปีละมาก</div>
+    </div>
+    <div class="goals-grid">
+      <!-- DAILY -->
+      <div class="goal-section">
+        <div class="goal-section-header daily">
+          <div class="goal-section-title">
+            <div class="goal-dot"></div> รายวัน
+          </div>
+          <span class="goal-count" id="dailyCount">0</span>
+        </div>
+        <div class="goal-progress-bar daily">
+          <div class="goal-progress-fill" id="dailyProgress" style="width:0%"></div>
+        </div>
+        <div class="goal-add-row daily">
+          <input class="goal-input" id="dailyInput" placeholder="เพิ่มเป้าหมายวันนี้...">
+          <button class="btn-add-goal" onclick="addGoal('daily')">+ เพิ่ม</button>
+        </div>
+        <div class="goal-list" id="dailyList"></div>
+      </div>
+      <!-- MONTHLY -->
+      <div class="goal-section">
+        <div class="goal-section-header monthly">
+          <div class="goal-section-title">
+            <div class="goal-dot"></div> รายเดือน
+          </div>
+          <span class="goal-count" id="monthlyCount">0</span>
+        </div>
+        <div class="goal-progress-bar monthly">
+          <div class="goal-progress-fill" id="monthlyProgress" style="width:0%"></div>
+        </div>
+        <div class="goal-add-row monthly">
+          <input class="goal-input" id="monthlyInput" placeholder="เป้าหมายเดือนนี้...">
+          <button class="btn-add-goal" onclick="addGoal('monthly')">+ เพิ่ม</button>
+        </div>
+        <div class="goal-list" id="monthlyList"></div>
+      </div>
+      <!-- YEARLY -->
+      <div class="goal-section">
+        <div class="goal-section-header yearly">
+          <div class="goal-section-title">
+            <div class="goal-dot"></div> รายปี
+          </div>
+          <span class="goal-count" id="yearlyCount">0</span>
+        </div>
+        <div class="goal-progress-bar yearly">
+          <div class="goal-progress-fill" id="yearlyProgress" style="width:0%"></div>
+        </div>
+        <div class="goal-add-row yearly">
+          <input class="goal-input" id="yearlyInput" placeholder="เป้าหมายปีนี้...">
+          <button class="btn-add-goal" onclick="addGoal('yearly')">+ เพิ่ม</button>
+        </div>
+        <div class="goal-list" id="yearlyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STATS PAGE ── -->
+  <div class="page" id="page-stats">
+    <div class="page-header">
+      <div class="page-title">สถิติของฉัน</div>
+      <div class="page-desc">ดูความก้าวหน้าและสิ่งที่ทำสำเร็จ</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-fire">🔥</div>
+      <div>
+        <div class="streak-num" id="streakNum">0</div>
+        <div class="streak-text">วันที่เขียนบันทึกติดต่อกัน (Streak)</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="statDiary">0</div>
+        <div class="stat-label">บันทึกทั้งหมด</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statGoalTotal">0</div>
+        <div class="stat-label">เป้าหมายทั้งหมด</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statGoalDone">0</div>
+        <div class="stat-label">ทำสำเร็จแล้ว</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statGoalPct">0%</div>
+        <div class="stat-label">อัตราความสำเร็จ</div>
+      </div>
+    </div>
+    <div class="section-title">อารมณ์ที่บันทึกไว้</div>
+    <div id="moodStats" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:28px;"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM DIALOG -->
+<div class="overlay" id="overlay" onclick="closeDialog()">
+  <div class="dialog" onclick="event.stopPropagation()">
+    <div class="dialog-title">ยืนยันการลบ</div>
+    <div class="dialog-msg">คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?</div>
+    <div class="dialog-btns">
+      <button class="btn-cancel" onclick="closeDialog()">ยกเลิก</button>
+      <button class="btn-confirm" id="confirmBtn">ลบ</button>
+    </div>
+  </div>
 </div>
 
 <script>
-
-/* STORAGE */
-let users = JSON.parse(localStorage.getItem("users")) || [];
+/* ═══════════ STATE ═══════════ */
 let currentUser = null;
-function showMore(){
+let selectedMood = '';
+let pendingDelete = null;
 
-let html = `
-<div class="card">
-<h2>⚙️ เมนูเพิ่มเติม</h2>
+/* ═══════════ KEY HELPERS ═══════════ */
+const key = (k) => `diary_${currentUser}_${k}`;
+const load = (k, def) => { try { return JSON.parse(localStorage.getItem(key(k))) ?? def; } catch { return def; } };
+const save = (k, v) => localStorage.setItem(key(k), JSON.stringify(v));
 
-<button onclick="showDashboard()">🏠 Dashboard</button>
-<button onclick="showCategory()">📂 หมวดหมู่</button>
-<button onclick="showGoals()">🎯 เป้าหมาย</button>
-<button onclick="showSummary()">📊 สรุป</button>
-<button onclick="showSettings()">🔒 ตั้งค่า</button>
-<button onclick="showBudget()">💸 งบประมาณ</button>
-
-</div>
-`;
-
-renderContent(html);
-
-}
-/* PAGE SWITCH */
-function showRegister(){
-    document.getElementById("loginPage").classList.add("hidden");
-    document.getElementById("registerPage").classList.remove("hidden");
-}
-function adjustPadding(){
-    let nav = document.querySelector(".bottom-nav");
-    let content = document.getElementById("content");
-
-    if(nav && content){
-        content.style.paddingBottom = nav.offsetHeight + "px";
-    }
+/* ═══════════ AUTH ═══════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login') ? i===0 : i===1));
+  document.getElementById('loginForm').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('registerForm').style.display = tab === 'register' ? '' : 'none';
 }
 
-window.onload = adjustPadding;
-window.onresize = adjustPadding;
-function showLogin(){
-    document.getElementById("registerPage").classList.add("hidden");
-    document.getElementById("loginPage").classList.remove("hidden");
+function getUsers() { return JSON.parse(localStorage.getItem('diary_users') || '{}'); }
+function saveUsers(u) { localStorage.setItem('diary_users', JSON.stringify(u)); }
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const users = getUsers();
+  if (!u || !p) return showLoginMsg('loginMsg', 'กรุณากรอกข้อมูลให้ครบ', 'error');
+  if (!users[u] || users[u].pass !== p) return showLoginMsg('loginMsg', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+  currentUser = u;
+  document.getElementById('displayName').textContent = users[u].name;
+  openApp();
 }
 
-/* REGISTER */
-function register(){
-
-    let user = document.getElementById("regUser").value;
-    let pass = document.getElementById("regPass").value;
-
-    if(!user || !pass){
-        alert("กรอกข้อมูลให้ครบ");
-        return;
-    }
-
-    // 🔥 เช็คซ้ำ
-    if(users.some(u => u.user === user)){
-        alert("มีผู้ใช้นี้แล้ว");
-        return;
-    }
-
-    users.push({
-        user,
-        pass,
-        data: [],
-        goals: [],
-        categories: ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"],
-        budgets: {}
-    });
-
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("สมัครสำเร็จ");
-    showLogin();
+function doRegister() {
+  const u = document.getElementById('regUser').value.trim();
+  const n = document.getElementById('regName').value.trim();
+  const p = document.getElementById('regPass').value;
+  if (!u || !n || !p) return showLoginMsg('registerMsg', 'กรุณากรอกข้อมูลให้ครบ', 'error');
+  if (p.length < 4) return showLoginMsg('registerMsg', 'รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร', 'error');
+  const users = getUsers();
+  if (users[u]) return showLoginMsg('registerMsg', 'ชื่อผู้ใช้นี้ถูกใช้แล้ว', 'error');
+  users[u] = { pass: p, name: n };
+  saveUsers(users);
+  showLoginMsg('registerMsg', 'สมัครสำเร็จ! กำลังเข้าสู่ระบบ...', 'success');
+  currentUser = u;
+  document.getElementById('displayName').textContent = n;
+  setTimeout(openApp, 800);
 }
 
-/* LOGIN */
-function login(){
-
-    let user = document.getElementById("loginUser").value;
-    let pass = document.getElementById("loginPass").value;
-
-    let found = users.find(u=>u.user===user && u.pass===pass);
-
-    if(found){
-
-        currentUser = found;
-
-        // ✅ FIX categories
-        if(!currentUser.categories){
-            currentUser.categories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
-        }
-
-        // ✅ FIX budgets (ต้องอยู่ตรงนี้)
-        if(!currentUser.budgets){
-            currentUser.budgets = {};
-        }
-
-        // save user ล่าสุด
-        localStorage.setItem("currentUser",JSON.stringify({user:user}));
-
-        document.getElementById("loginPage").classList.add("hidden");
-        document.getElementById("appPage").classList.remove("hidden");
-
-        setTab("dashboard");
-
-    }else{
-        alert("ข้อมูลไม่ถูกต้อง");
-    }
+function openApp() {
+  document.getElementById('loginScreen').classList.add('hide');
+  document.getElementById('app').classList.add('show');
+  initDatetime();
+  renderDiary();
+  renderGoals();
+  renderStats();
 }
 
-/* LOGOUT */
-function logout(){
-    currentUser = null;
-    localStorage.removeItem("currentUser");
-    document.getElementById("appPage").classList.add("hidden");
-    document.getElementById("loginPage").classList.remove("hidden");
+function doLogout() {
+  document.getElementById('loginScreen').classList.remove('hide');
+  document.getElementById('app').classList.remove('show');
+  currentUser = null;
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginMsg').textContent = '';
 }
 
-</script>
-window.onload = function(){
-
-    let saved = JSON.parse(localStorage.getItem("currentUser"));
-
-    if(saved){
-
-        let found = users.find(u => u.user === saved.user);
-
-        if(found){
-
-            currentUser = found;
-
-            // แก้ edge case (กันข้อมูลเก่า)
-            if(!currentUser.categories){
-                currentUser.categories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
-            }
-
-            if(!currentUser.budgets){
-                currentUser.budgets = {};
-            }
-
-            document.getElementById("loginPage").classList.add("hidden");
-            document.getElementById("appPage").classList.remove("hidden");
-
-            setTab("dashboard");
-            if(saved){
-
-    let found = users.find(u => u.user === saved.user);
-
-    if(!found){
-        localStorage.removeItem("currentUser");
-        return;
-    }
-}
-        }
-    }
-}
-</body>
-```
-```html
-<script>
-  function animatePage(){
-
-    let el = document.getElementById("content");
-
-    el.style.opacity = 0;
-    el.style.transform = "translateY(10px)";
-
-    setTimeout(()=>{
-        el.style.opacity = 1;
-        el.style.transform = "translateY(0)";
-    },100);
-}
-  function getCategoryColor(cat){
-
-    let map = {
-        "อาหาร":"#f97316",
-        "เดินทาง":"#3b82f6",
-        "ช้อปปิ้ง":"#ec4899",
-        "บิล":"#ef4444",
-        "อื่นๆ":"#10b981"
-    };
-
-    return map[cat] || "#999";
-}
-function resetData(){
-
-    if(!confirm("ลบข้อมูลทั้งหมดจริงไหม?")) return;
-
-    // ล้างข้อมูล
-    currentUser.data = [];
-    currentUser.goals = [];
-    currentUser.categories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
-
-    // อัปเดต users
-    let index = users.findIndex(u => u.user === currentUser.user);
-    if(index !== -1){
-        users[index] = currentUser;
-    }
-
-    // save ลง localStorage
-    localStorage.setItem("users", JSON.stringify(users));
-
-    // รีเฟรชหน้า
-    setTab("dashboard");
-
-    alert("ลบข้อมูลเรียบร้อยแล้ว");
-}
-/* =========================
-   SYSTEM INCOME / EXPENSE
-========================= */
-
-function saveData(){
-    let index = users.findIndex(u=>u.user === currentUser.user);
-    users[index] = currentUser;
-    localStorage.setItem("users",JSON.stringify(users));
+function showLoginMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'login-msg ' + type;
+  if (type === 'success') return;
+  setTimeout(() => { el.textContent = ''; }, 3000);
 }
 
-/* =========================
-   SHOW INCOME PAGE
-========================= */
-function showIncome(){
-    renderForm("income"); 
-    animatePage();
-}
-function renderContent(html){
-    let el = document.getElementById("content");
-
-    el.style.opacity = 0;
-    el.innerHTML = html;
-
-    requestAnimationFrame(()=>{
-        el.style.opacity = 1;
-        el.style.transform = "translateY(0)";
-    });
-}
-/* =========================
-   SHOW EXPENSE PAGE
-========================= */
-function showExpense(){
-    renderForm("expense");
-    animatePage(); 
+/* ═══════════ NAV ═══════════ */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = ['diary','goals','stats'].indexOf(name);
+  if (idx >= 0) tabs[idx].classList.add('active');
+  if (name === 'stats') renderStats();
 }
 
-/* =========================
-   FORM + TABLE
-========================= */
-function renderForm(type){
-
-    let html = `
-    <div class="card">
-        <h2>${type === "income" ? "➕ เพิ่มรายรับ" : "➖ เพิ่มรายจ่าย"}</h2>
-
-        <input type="text" id="desc" placeholder="รายละเอียด">
-        <input type="number" id="amount" placeholder="จำนวนเงิน">
-        <input type="date" id="date">
-<select id="category">
-    ${currentUser.categories.map(c=>`<option value="${c}">${c}</option>`).join("")}
-</select>
-        <button onclick="addItem('${type}')">บันทึก</button>
-    </div>
-
-    <div class="card">
-        <h2>📊 รายการทั้งหมด</h2>
-
-        <div style="overflow-x:auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th>ลำดับ</th>
-                    <th>วันที่</th>
-                    <th>รายละเอียด</th>
-                    <th>จำนวน</th>
-                     <th>หมวดหมู่</th>
-                    <th>ประเภท</th>
-                    <th>ลบ</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    let data = currentUser.data;
-
-    data.forEach((item,index)=>{
-        if(item.type === type){
-            html += `
-                <tr>
-                    <td>${index+1}</td>
-                    <td>${formatDate(item.date)}</td>
-                    <td>${item.desc}</td>
-                    <td style="color:${type==="income"?"#00ff99":"#ff4d4d"}">
-                        ${item.amount.toLocaleString()} บาท
-                    </td>
-                    <td>${item.category || "-"}</td>
-                    <td>${type==="income"?"รายรับ":"รายจ่าย"}</td>
-                    <td>
-                        <button onclick="deleteItem(${index})" style="background:#ff4d4d;">ลบ</button>
-                    </td>
-                </tr>
-            `;
-        }
-    });
-
-    html += `
-            </tbody>
-        </table>
-        </div>
-
-        <button style="margin-top:15px;background:#ff0000;" onclick="clearAll('${type}')">
-            ลบทั้งหมด (${type==="income"?"รายรับ":"รายจ่าย"})
-        </button>
-
-    </div>
-    `;
-
-    renderContent(html);
+/* ═══════════ DIARY ═══════════ */
+function initDatetime() {
+  const now = new Date();
+  document.getElementById('entryDate').value = now.toISOString().slice(0,10);
+  document.getElementById('entryTime').value = now.toTimeString().slice(0,5);
 }
 
-/* =========================
-   ADD ITEM
-========================= */
-function addItem(type){
-
-    let desc = document.getElementById("desc").value;
-    let amount = document.getElementById("amount").value;
-    let date = document.getElementById("date").value;
-    let category = document.getElementById("category").value;
-
-    if(!desc || !amount || !date){
-        alert("กรอกข้อมูลให้ครบ");
-        return;
-    }
-
-    currentUser.data.push({
-        desc: desc,
-        amount: Number(amount),
-        date: date,
-        type: type,
-        category: category
-    });
-
-    saveData();
-    renderForm(type);
+function selectMood(btn) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedMood = btn.dataset.mood;
 }
 
-/* =========================
-   DELETE ITEM
-========================= */
-function deleteItem(index, type){
-    if(confirm("ต้องการลบใช่ไหม?")){
-        currentUser.data.splice(index,1);
-        saveData();
-        renderForm(type);
-    }
+function updateCharCount() {
+  const len = document.getElementById('entryBody').value.length;
+  document.getElementById('charCount').textContent = len.toLocaleString() + ' ตัวอักษร';
 }
 
-/* =========================
-   CLEAR ALL
-========================= */
-function clearAll(type){
-    if(confirm("ลบทั้งหมดจริงไหม?")){
-        currentUser.data = currentUser.data.filter(item=>item.type !== type);
-        saveData();
-        renderForm(type);
-    }
+function saveDiary() {
+  const body = document.getElementById('entryBody').value.trim();
+  if (!body) return showToast('กรุณาเขียนบันทึกก่อน ✍️');
+  const entries = load('entries', []);
+  const entry = {
+    id: Date.now(),
+    date: document.getElementById('entryDate').value,
+    time: document.getElementById('entryTime').value,
+    title: document.getElementById('entryTitle').value.trim(),
+    body,
+    mood: selectedMood
+  };
+  entries.unshift(entry);
+  save('entries', entries);
+  document.getElementById('entryBody').value = '';
+  document.getElementById('entryTitle').value = '';
+  document.getElementById('charCount').textContent = '0 ตัวอักษร';
+  selectedMood = '';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  initDatetime();
+  renderDiary();
+  showToast('บันทึกเรียบร้อย! 🌸');
 }
 
-/* =========================
-   FORMAT DATE
-========================= */
-function formatDate(dateStr){
-    let d = new Date(dateStr);
-    let day = d.getDate();
-    let month = d.getMonth()+1;
-    let year = d.getFullYear()+543;
-
-    return `${day}/${month}/${year}`;
-}
-
-</script>
-```
-```html id="z9qkdl"
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-
-/* =========================
-   SUMMARY PAGE
-========================= */
-function showSummary(){
-
-    let html = `
-    <div class="card">
-        <h2>📊 สรุปข้อมูล</h2>
-
-        <label>เลือกระยะเวลา</label>
-        <select id="filterType" onchange="renderSummary()">
-            <option value="all">ทั้งหมด</option>
-            <option value="day">วันนี้</option>
-            <option value="month">เดือนนี้</option>
-            <option value="year">ปีนี้</option>
-            <option value="custom">กำหนดเอง</option>
-        </select>
-
-        <div id="customRange" style="display:none;">
-            <input type="date" id="startDate">
-            <input type="date" id="endDate">
-        </div>
-
-        <button onclick="renderSummary()">คำนวณ</button>
-    </div>
-
-    <div class="card">
-        <h2>💰 ผลลัพธ์</h2>
-        <h3 id="totalIncome">รายรับ: 0</h3>
-        <h3 id="totalExpense">รายจ่าย: 0</h3>
-        <h2 id="balance">คงเหลือ: 0</h2>
-    </div>
-
-    <div class="card">
-        <canvas id="myChart"></canvas>
-    </div>
-    `;
-
-    renderContent(html);
-
-    renderSummary();
-}
-
-/* =========================
-   FILTER DATA
-========================= */
-function getFilteredData(){
-
-    let type = document.getElementById("filterType").value;
-    let data = currentUser.data;
-    let now = new Date();
-
-    if(type === "all") return data;
-
-    return data.filter(item => {
-
-        let d = new Date(item.date);
-
-        if(type === "day"){
-            return d.toDateString() === now.toDateString();
-        }
-
-        if(type === "month"){
-            return d.getMonth() === now.getMonth() &&
-                   d.getFullYear() === now.getFullYear();
-        }
-
-        if(type === "year"){
-            return d.getFullYear() === now.getFullYear();
-        }
-
-        if(type === "custom"){
-
-            let startVal = document.getElementById("startDate").value;
-            let endVal = document.getElementById("endDate").value;
-
-            // ❗ กันค่าว่าง
-            if(!startVal || !endVal) return false;
-
-            let start = new Date(startVal);
-            let end = new Date(endVal);
-
-            // ❗ กันวันสลับ
-            if(start > end) return false;
-
-            return d >= start && d <= end;
-        }
-
-        return false; // ❗ กัน fallback
-    });
-}
-/* =========================
-   RENDER SUMMARY
-========================= */
-function renderSummary(){
-
-    let filterType = document.getElementById("filterType").value;
-
-    document.getElementById("customRange").style.display =
-        filterType === "custom" ? "block" : "none";
-
-    let data = getFilteredData();
-
-    let income = 0;
-    let expense = 0;
-
-    data.forEach(item=>{
-        if(item.type === "income") income += item.amount;
-        else expense += item.amount;
-    });
-
-    let balance = income - expense;
-
-    document.getElementById("totalIncome").innerText =
-        "รายรับ: " + income.toLocaleString() + " บาท";
-
-    document.getElementById("totalExpense").innerText =
-        "รายจ่าย: " + expense.toLocaleString() + " บาท";
-
-    document.getElementById("balance").innerText =
-        "คงเหลือ: " + balance.toLocaleString() + " บาท";
-
-    renderChart(income,expense);
-}
-
-/* =========================
-   CHART
-========================= */
-let chart;
-
-function renderChart(income,expense){
-
-    let ctx = document.getElementById("myChart").getContext("2d");
-
-    if(chart){
-        chart.destroy();
-    }
-
-    chart = new Chart(ctx,{
-        type:'doughnut',
-        data:{
-            labels:['รายรับ','รายจ่าย'],
-            datasets:[{
-                data:[income,expense],
-                backgroundColor:[
-                    '#00ff99',
-                    '#ff4d4d'
-                ]
-            }]
-        },
-        options:{
-            responsive:true,
-            plugins:{
-                legend:{
-                    labels:{
-                        color:'#fff'
-                    }
-                }
-            }
-        }
-    });
-}
-
-</script>
-```
-```html id="goal4sys"
-<script>
-
-/* =========================
-   GOALS PAGE
-========================= */
-function showGoals(){
-
-    let html = `
-    <div class="card">
-        <h2>🎯 ตั้งเป้าหมาย</h2>
-
-        <input type="text" id="goalText" placeholder="เช่น เก็บเงิน 10,000">
-        <input type="number" id="goalAmount" placeholder="จำนวนเงินเป้าหมาย">
-        <input type="date" id="goalDate">
-
-        <button onclick="addGoal()">เพิ่มเป้าหมาย</button>
-    </div>
-
-    <div class="card">
-        <h2>📌 รายการเป้าหมาย</h2>
-
-        <div style="overflow-x:auto;">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>เป้าหมาย</th>
-                    <th>จำนวน</th>
-                    <th>วันที่</th>
-                    <th>สถานะ</th>
-                    <th>ลบ</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    let goals = currentUser.goals || [];
-
-    goals.forEach((g,index)=>{
-
-        let progress = calculateProgress(g.amount);
-
-        html += `
-        <tr>
-            <td>${index+1}</td>
-            <td>${g.text}</td>
-            <td>${g.amount.toLocaleString()} บาท</td>
-            <td>${formatDate(g.date)}</td>
-            <td>
-                <button onclick="toggleGoal(${index})"
-                    style="background:${g.done ? '#00cc66' : '#ffaa00'}">
-                    ${g.done ? '✔️ สำเร็จ' : '⌛ กำลังทำ'}
-                </button>
-
-                <div style="margin-top:5px;">
-                    <div style="
-                        width:100%;
-                        background:#ffffff22;
-                        border-radius:10px;
-                        overflow:hidden;
-                        height:10px;">
-                        <div style="
-                            width:${progress}%;
-                            background:#00ffcc;
-                            height:100%;">
-                        </div>
-                    </div>
-                    <small>${progress.toFixed(0)}%</small>
-                </div>
-
-            </td>
-            <td>
-                <button onclick="deleteGoal(${index})" style="background:#ff4d4d;">
-                    ลบ
-                </button>
-            </td>
-        </tr>
-        `;
-    });
-
-    html += `
-            </tbody>
-        </table>
-        </div>
-
-        <button style="margin-top:15px;background:#ff0000;" onclick="clearGoals()">
-            ลบเป้าหมายทั้งหมด
-        </button>
-
-    </div>
-    `;
-
-    renderContent(html);
-}
-
-/* =========================
-   ADD GOAL
-========================= */
-function addGoal(){
-
-    let text = document.getElementById("goalText").value;
-    let amount = document.getElementById("goalAmount").value;
-    let date = document.getElementById("goalDate").value;
-
-    if(!text || !amount || !date){
-        alert("กรอกข้อมูลให้ครบ");
-        return;
-    }
-
-    currentUser.goals.push({
-        text:text,
-        amount:Number(amount),
-        date:date,
-        done:false
-    });
-
-    saveData();
-    showGoals();
-}
-
-/* =========================
-   TOGGLE DONE
-========================= */
-function toggleGoal(index){
-    currentUser.goals[index].done = !currentUser.goals[index].done;
-    saveData();
-    showGoals();
-}
-
-/* =========================
-   DELETE GOAL
-========================= */
-function deleteGoal(index){
-    if(confirm("ลบเป้าหมายนี้?")){
-        currentUser.goals.splice(index,1);
-        saveData();
-        showGoals();
-    }
-}
-
-/* =========================
-   CLEAR GOALS
-========================= */
-function clearGoals(){
-    if(confirm("ลบทั้งหมดจริงไหม?")){
-        currentUser.goals = [];
-        saveData();
-        showGoals();
-    }
-}
-
-/* =========================
-   PROGRESS CALCULATION
-========================= */
-function calculateProgress(goalAmount){
-
-    let total = 0;
-
-    currentUser.data.forEach(item=>{
-        if(item.type === "income"){
-            total += item.amount;
-        }
-    });
-
-    let percent = (total / goalAmount) * 100;
-
-    if(percent > 100) percent = 100;
-
-    return percent;
-}
-/* default category */
-let defaultCategories = ["อาหาร","เดินทาง","ช้อปปิ้ง","บิล","อื่นๆ"];
-
-if(currentUser && !currentUser.categories){
-    currentUser.categories = defaultCategories;
-}
-
-/* แสดงหน้า */
-function showCategory(){
-
-let html = `
-<div class="card">
-<h2>📂 หมวดหมู่</h2>
-
-<input id="newCat" placeholder="เพิ่มหมวดหมู่ใหม่">
-<button onclick="addCategory()">เพิ่ม</button>
-</div>
-
-<div class="card">
-<h3>รายการหมวดหมู่</h3>
-`;
-
-currentUser.categories.forEach((c,i)=>{
-html += `
-<div style="display:flex;justify-content:space-between;margin:8px 0;">
-<span>${c}</span>
-<button onclick="deleteCategory(${i})" style="background:#ff4d4d;">ลบ</button>
-</div>
-`;
-});
-
-html += `</div>`;
-
-renderContent(html);
-animatePage();
-}
-
-/* เพิ่ม */
-function addCategory(){
-let val = document.getElementById("newCat").value;
-if(!val) return;
-
-currentUser.categories.push(val);
-saveData();
-showCategory();
-}
-
-/* ลบ */
-function deleteCategory(i){
-
-    let removed = currentUser.categories[i];
-
-    currentUser.categories.splice(i,1);
-
-    // 🔥 เปลี่ยนรายการเก่าที่ใช้หมวดนี้
-    currentUser.data.forEach(d=>{
-        if(d.category === removed){
-            d.category = "อื่นๆ";
-        }
-    });
-
-    saveData();
-    showCategory();
-}
-function showDashboard(){
-
-let income = 0;
-let expense = 0;
-
-currentUser.data.forEach(d=>{
-    if(d.type==="income") income += d.amount;
-    else expense += d.amount;
-});
-
-let balance = income - expense;
-
-/* 🔥 สร้างแจ้งเตือนงบ */
-let warnHTML = "";
-
-for(let cat in currentUser.budgets){
-
-    let limit = currentUser.budgets[cat];
-    let used = 0;
-
-    currentUser.data.forEach(d=>{
-        if(d.type==="expense" && d.category===cat){
-            used += d.amount;
-        }
-    });
-
-    if(limit > 0 && used > limit){
-        warnHTML += `
-        <div style="
-        background:#ff4d4d22;
-        padding:10px;
-        border-radius:12px;
-        margin-top:10px;
-        color:#ff4d4d;
-        ">
-        ⚠️ ${cat} เกินงบ (${used}/${limit})
-        </div>`;
-    }
-}
-
-/* รายการล่าสุด */
-let recent = currentUser.data.slice(-4).reverse();
-
-let html = `
-
-<!-- HERO -->
-<div class="card" style="
-background:linear-gradient(135deg,#3b82f6,#06b6d4);
-color:white;
-padding:25px;
-border-radius:25px;
-">
-
-<p style="opacity:0.8;">ยอดเงินคงเหลือ</p>
-
-<h1 style="font-size:32px;margin:10px 0;">
-${balance.toLocaleString()} ฿
-</h1>
-
-<!-- 🔥 ใส่แจ้งเตือนตรงนี้ -->
-${warnHTML}
-${Object.keys(currentUser.budgets).map(cat=>{
-
-    let limit = currentUser.budgets[cat] || 0;
-    let used = 0;
-
-    currentUser.data.forEach(d=>{
-        if(d.type==="expense" && d.category===cat){
-            used += d.amount;
-        }
-    });
-
-    let percent = limit ? Math.min((used/limit*100),100) : 0;
-
+function renderDiary() {
+  const entries = load('entries', []);
+  const list = document.getElementById('diaryList');
+  if (!entries.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">ยังไม่มีบันทึก เริ่มเขียนวันนี้เลย!</div></div>`;
+    return;
+  }
+  list.innerHTML = entries.map(e => {
+    const d = new Date(e.date + 'T' + (e.time||'00:00'));
+    const dateStr = d.toLocaleDateString('th-TH', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+    const timeStr = e.time || '';
     return `
-    <div style="margin-top:10px;">
+    <div class="diary-entry" id="entry-${e.id}">
+      <div class="entry-meta">
+        <span class="entry-date">${dateStr}${timeStr ? ' · ' + timeStr : ''}</span>
+        ${e.mood ? `<span class="entry-mood">${e.mood}</span>` : ''}
+      </div>
+      ${e.title ? `<div class="entry-title">${escHtml(e.title)}</div>` : ''}
+      <div class="entry-body" id="body-${e.id}">${escHtml(e.body)}</div>
+      <div class="entry-actions">
+        <button class="btn-sm" onclick="toggleExpand(${e.id})">อ่านเพิ่ม</button>
+        <button class="btn-sm danger" onclick="confirmDelete('diary', ${e.id})">ลบ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-        <div style="display:flex;justify-content:space-between;font-size:12px;">
-            <span>${cat}</span>
-            <span>${used} / ${limit || "-"}</span>
-        </div>
+function toggleExpand(id) {
+  const el = document.getElementById('body-' + id);
+  const btn = el.nextElementSibling.querySelector('.btn-sm');
+  if (el.classList.toggle('expanded')) btn.textContent = 'ย่อ';
+  else btn.textContent = 'อ่านเพิ่ม';
+}
 
-        <div style="
-        background:#ffffff33;
-        height:8px;
-        border-radius:10px;
-        margin-top:4px;
-        ">
+/* ═══════════ GOALS ═══════════ */
+function addGoal(type) {
+  const input = document.getElementById(type + 'Input');
+  const text = input.value.trim();
+  if (!text) return;
+  const goals = load('goals_' + type, []);
+  goals.push({ id: Date.now(), text, done: false });
+  save('goals_' + type, goals);
+  input.value = '';
+  renderGoals();
+}
 
-            <div style="
-            width:${percent}%;
-            background:${used>limit?"#ff4d4d":"#00ff99"};
-            height:100%;
-            border-radius:10px;
-            ">
-            </div>
+function toggleGoal(type, id) {
+  const goals = load('goals_' + type, []);
+  const g = goals.find(g => g.id === id);
+  if (g) { g.done = !g.done; save('goals_' + type, goals); renderGoals(); }
+}
 
-        </div>
+function renderGoals() {
+  ['daily','monthly','yearly'].forEach(type => {
+    const goals = load('goals_' + type, []);
+    const done = goals.filter(g => g.done).length;
+    const pct = goals.length ? Math.round(done / goals.length * 100) : 0;
+    document.getElementById(type + 'Count').textContent = `${done}/${goals.length}`;
+    document.getElementById(type + 'Progress').style.width = pct + '%';
+    const list = document.getElementById(type + 'List');
+    if (!goals.length) { list.innerHTML = `<div style="padding:16px;text-align:center;font-size:.82rem;color:var(--text-muted)">ยังไม่มีเป้าหมาย</div>`; return; }
+    list.innerHTML = goals.map(g => `
+      <div class="goal-item ${g.done ? 'done' : ''}" id="goal-${g.id}">
+        <div class="goal-check" onclick="toggleGoal('${type}', ${g.id})">${g.done ? '✓' : ''}</div>
+        <div class="goal-text">${escHtml(g.text)}</div>
+        <button class="btn-del-goal" onclick="confirmDelete('goal_${type}', ${g.id})">×</button>
+      </div>`).join('');
+  });
+}
 
-    </div>
-    `;
-
-}).join("")}
-<div style="display:flex;justify-content:space-between;font-size:14px;">
-<span>+ ${income.toLocaleString()}</span>
-<span>- ${expense.toLocaleString()}</span>
-</div>
-
-</div>
-
-<!-- QUICK ACTION -->
-<div class="card">
-<div style="display:flex;justify-content:space-around;text-align:center;">
-
-<div onclick="setTab('income')">
-<div style="font-size:24px;">💰</div>
-<p>รับ</p>
-</div>
-
-<div onclick="setTab('expense')">
-<div style="font-size:24px;">💸</div>
-<p>จ่าย</p>
-</div>
-
-<div onclick="showSummary()">
-<div style="font-size:24px;">📊</div>
-<p>สรุป</p>
-</div>
-
-<div onclick="showGoals()">
-<div style="font-size:24px;">🎯</div>
-<p>เป้า</p>
-</div>
-
-</div>
-</div>
-
-<!-- RECENT -->
-<div class="card">
-<h3>📌 ล่าสุด</h3>
-`;
-
-recent.forEach(r=>{
-html += `
-<div style="
-display:flex;
-justify-content:space-between;
-padding:10px 0;
-border-bottom:1px solid #ffffff22;
-">
-
-<div>
-<div>${r.desc}</div>
-
-<span style="
-background:${getCategoryColor(r.category)};
-padding:4px 10px;
-border-radius:10px;
-font-size:12px;
-color:white;
-display:inline-block;
-margin-top:4px;
-">
-${r.category || "อื่นๆ"}
-</span>
-
-</div>
-
-<div style="color:${r.type==="income"?"#00ff99":"#ff4d4d"}">
-${r.type==="income"?"+":"-"}${r.amount.toLocaleString()}
-</div>
-
-</div>
-`;
+// Enter key for goal inputs
+['daily','monthly','yearly'].forEach(type => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById(type + 'Input');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(type); });
+  });
 });
 
-html += `</div>
+/* ═══════════ STATS ═══════════ */
+function renderStats() {
+  const entries = load('entries', []);
+  const daily = load('goals_daily', []);
+  const monthly = load('goals_monthly', []);
+  const yearly = load('goals_yearly', []);
+  const allGoals = [...daily, ...monthly, ...yearly];
+  const done = allGoals.filter(g => g.done).length;
+  const pct = allGoals.length ? Math.round(done / allGoals.length * 100) : 0;
+  document.getElementById('statDiary').textContent = entries.length;
+  document.getElementById('statGoalTotal').textContent = allGoals.length;
+  document.getElementById('statGoalDone').textContent = done;
+  document.getElementById('statGoalPct').textContent = pct + '%';
 
-<!-- QUICK ADD -->
-<div class="card">
-<button onclick="quickAdd()" class="big-btn">
-➕ เพิ่มรายการ
-</button>
-</div>
-`;
+  // Streak
+  const dates = [...new Set(entries.map(e => e.date))].sort().reverse();
+  let streak = 0;
+  let check = new Date(); check.setHours(0,0,0,0);
+  for (const d of dates) {
+    const dd = new Date(d); dd.setHours(0,0,0,0);
+    const diff = (check - dd) / 86400000;
+    if (diff <= 1) { streak++; check = dd; }
+    else break;
+  }
+  document.getElementById('streakNum').textContent = streak;
 
-renderContent(html);
-
-}
-function quickAdd(){
-    showIncome(); // หรือเปิด modal ก็ได้
-}
-
-function showSettings(){
-
-let html = `
-<div class="card">
-<h2>⚙️ ตั้งค่า</h2>
-
-<button onclick="toggleTheme()">🌙 เปลี่ยนธีม</button>
-
-<button onclick="exportData()">📤 Export ข้อมูล</button>
-
-<button onclick="resetData()" style="background:#ff4d4d;">
-🗑️ ลบข้อมูลทั้งหมด
-</button>
-
-</div>
-`;
-
-renderContent(html);
-animatePage();
-}
-
-/* เปลี่ยนธีม */
-function toggleTheme(){
-
-    let isLight = document.body.classList.toggle("light");
-
-    if(isLight){
-        document.body.style.background = "#f1f5f9";
-        document.body.style.color = "#000";
-    }else{
-        document.body.style.background = "#0f172a";
-        document.body.style.color = "#fff";
-    }
+  // Mood stats
+  const moodCount = {};
+  entries.forEach(e => { if (e.mood) moodCount[e.mood] = (moodCount[e.mood] || 0) + 1; });
+  const moodEl = document.getElementById('moodStats');
+  if (!Object.keys(moodCount).length) {
+    moodEl.innerHTML = `<div style="color:var(--text-muted);font-size:.9rem;">ยังไม่มีข้อมูลอารมณ์</div>`;
+    return;
+  }
+  moodEl.innerHTML = Object.entries(moodCount).map(([m, c]) => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center;box-shadow:var(--shadow)">
+      <div style="font-size:1.8rem;margin-bottom:4px">${m}</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--accent-dark)">${c}</div>
+      <div style="font-size:.75rem;color:var(--text-muted)">ครั้ง</div>
+    </div>`).join('');
 }
 
-/* export */
-function exportData(){
-
-let data = JSON.stringify(currentUser);
-
-let blob = new Blob([data],{type:"application/json"});
-let a = document.createElement("a");
-
-a.href = URL.createObjectURL(blob);
-a.download = "finance-data.json";
-a.click();
-
+/* ═══════════ DELETE / DIALOG ═══════════ */
+function confirmDelete(type, id) {
+  pendingDelete = { type, id };
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('confirmBtn').onclick = executeDelete;
+}
+function closeDialog() { document.getElementById('overlay').classList.remove('show'); pendingDelete = null; }
+function executeDelete() {
+  if (!pendingDelete) return;
+  const { type, id } = pendingDelete;
+  if (type === 'diary') {
+    const entries = load('entries', []).filter(e => e.id !== id);
+    save('entries', entries); renderDiary();
+  } else if (type.startsWith('goal_')) {
+    const t = type.replace('goal_','');
+    const goals = load('goals_' + t, []).filter(g => g.id !== id);
+    save('goals_' + t, goals); renderGoals();
+  }
+  closeDialog(); showToast('ลบเรียบร้อย');
 }
 
-/* reset */
-function setTab(tab){
-
-    let nav = document.querySelectorAll(".bottom-nav button");
-
-    if(nav){
-        nav.forEach(btn=>btn.classList.remove("active-tab"));
-    }
-
-    let el = document.getElementById("tab-"+tab);
-    if(el) el.classList.add("active-tab");
-
-    if(tab==="dashboard") showDashboard();
-    if(tab==="income") showIncome();
-    if(tab==="expense") showExpense();
-    if(tab==="insight") showInsight();
-    if(tab==="more") showMore();
+/* ═══════════ TOAST ═══════════ */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
 }
-function showInsight(){
 
-let map = {};
+/* ═══════════ UTILS ═══════════ */
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
-currentUser.data.forEach(d=>{
-    if(d.type==="expense"){
-        if(!map[d.category]) map[d.category]=0;
-        map[d.category]+=d.amount;
-    }
+// Goal input enter key
+window.addEventListener('DOMContentLoaded', () => {
+  ['daily','monthly','yearly'].forEach(type => {
+    const inp = document.getElementById(type + 'Input');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(type); });
+  });
 });
-
-let html = `<div class="card"><h2>🧠 วิเคราะห์</h2>`;
-
-for(let c in map){
-    html += `<p>${c}: ${map[c].toLocaleString()} บาท</p>`;
-}
-
-html += `</div>`;
-
-renderContent(html);
-
-}
-
-function showBudget(){
-
-let html = `
-<div class="card">
-<h2>💸 ตั้งงบต่อหมวด</h2>
-`;
-
-currentUser.categories.forEach(cat=>{
-
-    let val = currentUser.budgets[cat] || "";
-
-    html += `
-    <div style="margin:10px 0;">
-        <label>${cat}</label>
-        <input type="number" 
-        value="${val}" 
-        placeholder="ตั้งงบ เช่น 5000"
-        onchange="setBudget('${cat}',this.value)">
-    </div>
-    `;
-});
-
-html += `</div>`;
-
-renderContent(html);
-
-}
-
-function setBudget(cat,val){
-    currentUser.budgets[cat] = Number(val);
-    saveData();
-}
-
-
 </script>
-```
-
+</body>
+</html>
